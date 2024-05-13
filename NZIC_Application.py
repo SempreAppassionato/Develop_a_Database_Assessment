@@ -1,6 +1,15 @@
 # First Name Last name (This is a synced to a public repository)
 # This application helps users better understand the results from Round 1 of NCIC 2024
 
+""" 
+Development next steps: 
+- The ability to have add custom SQL queries for the user
+    - This would require a separate admin username and password for safety
+- Add more functions 
+
+"""
+
+
 import sqlite3
 
 class color:

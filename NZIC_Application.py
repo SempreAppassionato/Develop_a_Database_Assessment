@@ -9,12 +9,7 @@ Development next steps:
 
 """
 
-
 import sqlite3
-
-
-
-
 
 class color:
    PURPLE = '\033[95m'
@@ -35,12 +30,18 @@ global password
 
 # Functions
 def authenticate_user():
+    global username
+    global password
     username = input("username: ")
     password = input("password: ")
     if username == "admin" and password == "password":
         return True
+    if username == "root" and password == "raspberrypi":
+        return True
 
 def root_user_authentication():
+    global username
+    global password
     if username == "root" and password == "raspberrypi":
         return True
     else:
@@ -58,7 +59,8 @@ def print_all_contestants():
         print(color.BOLD + "Name: " + color.END + item[1] + color.BOLD + " Username: " + color.END + item[0])
     db.close()
 
-def custom_query(userquery):
+def custom_query():
+    userquery = custom_query_input()
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
     cursor.execute(userquery)
@@ -66,6 +68,14 @@ def custom_query(userquery):
     for item in results:
         print(item)
     db.close()
+
+def custom_query_input():
+    print("Please enter your SQL query below")
+    try:
+        userquery = str(input(": "))
+    except:
+        print("Invalid query, please try again.")
+    return userquery
 
 # Main code
 
@@ -83,17 +93,12 @@ while True:
     print("What would you like to do?")
     print("1 - View all contestants")
     print("2 - Enter a custom query")
+    print("3 - Exit")
     choice = input(": ")
     if choice == "1":
         print_all_contestants()
-    if choice == "2":
-        username = input("username: ")
-        password = input("password: ")
-        if root_user_authentication(username, password):
-            while True:
-                userquery = input("Enter a custom SQL query: ")
-                custom_query(userquery)
-                break
-        else:
-            print("Invalid username or password. Please try again.")
-            continue
+    elif choice == "2":
+        if root_user_authentication():
+                custom_query()
+    elif choice == "3":
+        break

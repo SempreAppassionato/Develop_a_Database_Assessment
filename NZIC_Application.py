@@ -4,6 +4,7 @@
 """ 
 Development next steps: 
 - More functions
+    - Especially a search function
 
 """
 
@@ -72,23 +73,41 @@ def custom_query():
     db.close()
 
 def individual_score():
+    userIdentification = str(input("Please enter a username or real name to search for: "))
+    userIdentification = '%' + userIdentification + '%'
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+    sql = "select id from User where real_name is ? or username is ?"
+    cursor.execute(sql, (userIdentification, userIdentification))
+    results = cursor.fetchall()
+    pass
+
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
     sql = "select SUM(question_score) from Question_score where user_id = 1"
     cursor.execute(sql)
     results = cursor.fetchall()
     tuple = results[0]
-    print(tuple[0])
+    print(color.BOLD + "Score: " + color.END + tuple[0])
     db.close()
 
-
-
+def search_username():
+    search = str(input("Please enter a username or real name to search for: "))
+    search = '%' + search + '%'
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+    sql = "select real_name, username from User where real_name like ? or username like ?"
+    cursor.execute(sql, (search, search))
+    results = cursor.fetchall()
+    for item in results:
+        print(color.BOLD + "Name: " + color.END + item[0] + "\n" + color.BOLD + "Username: " + color.END + item[1] + "\n\n")
+    db.close()
 
 
 
 # MAIN CODE __________________________________________________________________
 # Initial authentication 
-individual_score()
+search_username()
 
 """
 while True:

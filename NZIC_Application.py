@@ -3,9 +3,7 @@
 
 """ 
 Development next steps: 
-- The ability to have add custom SQL queries for the user
-    - This would require a separate admin username and password for safety
-- Add more functions 
+- More functions
 
 """
 
@@ -23,12 +21,12 @@ class color:
    UNDERLINE = '\033[4m'
    END = '\033[0m'
 
-# Constants and variables 
+# CONSTANTS AND VARIABLES ________________________________________________
 DATABASE = "NZIC.db"
 global username
 global password
 
-# Functions
+# FUNCTIONS  ___________________________________________________________
 def authenticate_user():
     global username
     global password
@@ -52,15 +50,19 @@ def root_user_authentication():
 def print_all_contestants():
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
-    sql = "SELECT real_name, username FROM User"
+    sql = "select real_name, username from User"
     cursor.execute(sql)
     results = cursor.fetchall()
     for item in results:
-        print(color.BOLD + "Name: " + color.END + item[1] + color.BOLD + " Username: " + color.END + item[0])
+        print(color.BOLD + "Name: " + color.END + item[1] + "\n" + color.BOLD + "Username: " + color.END + item[0] + "\n\n")
     db.close()
 
 def custom_query():
-    userquery = custom_query_input()
+    print("Please enter your SQL query below")
+    try:
+        userquery = str(input(": "))
+    except:
+        print("Invalid query, please try again.")
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
     cursor.execute(userquery)
@@ -69,17 +71,26 @@ def custom_query():
         print(item)
     db.close()
 
-def custom_query_input():
-    print("Please enter your SQL query below")
-    try:
-        userquery = str(input(": "))
-    except:
-        print("Invalid query, please try again.")
-    return userquery
+def individual_score():
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+    sql = "select SUM(question_score) from Question_score where user_id = 1"
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    tuple = results[0]
+    print(tuple)
+    db.close()
 
-# Main code
 
+
+
+
+
+# MAIN CODE __________________________________________________________________
 # Initial authentication 
+individual_score()
+
+"""
 while True:
     if authenticate_user():
         print("Welcome!")
@@ -94,6 +105,7 @@ while True:
     print("1 - View all contestants")
     print("2 - Enter a custom query")
     print("3 - Exit")
+    # see total user score by username or real name
     choice = input(": ")
     if choice == "1":
         print_all_contestants()
@@ -102,3 +114,9 @@ while True:
                 custom_query()
     elif choice == "3":
         break
+    elif choice == "4":
+        individual_score()
+    else:
+        break
+        
+"""

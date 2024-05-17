@@ -78,7 +78,7 @@ def individual_score():
     cursor.execute(sql)
     results = cursor.fetchall()
     tuple = results[0]
-    print(tuple)
+    print(tuple[0])
     db.close()
 
 

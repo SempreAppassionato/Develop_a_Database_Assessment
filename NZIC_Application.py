@@ -28,7 +28,9 @@ global username
 global password
 
 # FUNCTIONS  ___________________________________________________________
-def authenticate_user():
+
+# Authentication functions
+def authenticate_user(): # added to main code
     global username
     global password
     username = input("username: ")
@@ -38,17 +40,24 @@ def authenticate_user():
     if username == "root" and password == "raspberrypi":
         return True
 
-def root_user_authentication():
+def root_user_authentication(): # added to main code
     global username
     global password
+    if username == "admin" and password == "password":
+        print("Root user authentication required.")
+        username = input("username: ")
+        password = input("password: ")
+        root_user_authentication()
     if username == "root" and password == "raspberrypi":
         return True
     else:
+        print("Invalid username or password. Please try again.\n")
         username = input("username: ")
         password = input("password: ")
         root_user_authentication()
 
-def print_all_contestants():
+# Query functions
+def print_all_contestants(): # main code 1 
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
     sql = "select real_name, username from User"
@@ -58,40 +67,41 @@ def print_all_contestants():
         print(color.BOLD + "Name: " + color.END + item[1] + "\n" + color.BOLD + "Username: " + color.END + item[0] + "\n\n")
     db.close()
 
-def custom_query():
+def custom_query(): # main code LAST
     print("Please enter your SQL query below")
     try:
         userquery = str(input(": "))
+        db = sqlite3.connect(DATABASE)
+        cursor = db.cursor()
+        cursor.execute(userquery)
+        results = cursor.fetchall()
+        for item in results:
+            print(item)
+        db.close()
     except:
         print("Invalid query, please try again.")
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
-    cursor.execute(userquery)
-    results = cursor.fetchall()
-    for item in results:
-        print(item)
-    db.close()
 
-def individual_score():
-    userIdentification = str(input("Please enter a username or real name to search for: "))
-    userIdentification = '%' + userIdentification + '%'
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
-    sql = "select id from User where real_name is ? or username is ?"
-    cursor.execute(sql, (userIdentification, userIdentification))
-    results = cursor.fetchall()
-    pass
+def individual_score(): # main code 3
+    try:
+        userIdentification = str(input("Please enter a username or real name to search for: ")).strip()
+        userIdentification = str(userIdentification)
+        db = sqlite3.connect(DATABASE)
+        cursor = db.cursor()
+        sql = "select User.real_name, User.username, SUM(question_score) from User, Question_score where User.id = Question_score.user_id and (User.real_name = '" + userIdentification + "' or User.username = '" + userIdentification + "')"
+        cursor.execute(sql)
+        rawResults = cursor.fetchall()
+        if rawResults != [(None, None, None)]:
+            results = rawResults[0]
+            print(color.BOLD + "Name: " + color.END + results[0])
+            print(color.BOLD + "Username: " + color.END + results[1])
+            print(color.BOLD + "Total score: " + color.END + str(results[2]) + "\n")
+        else:
+            print("Your query did not return any results. Please try again.")
+        db.close()
+    except:
+        print("Invalid query, please try again.")
 
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
-    sql = "select SUM(question_score) from Question_score where user_id = 1"
-    cursor.execute(sql)
-    results = cursor.fetchall()
-    tuple = results[0]
-    print(color.BOLD + "Score: " + color.END + tuple[0])
-    db.close()
-
-def search_username():
+def search_username(): # main code 4
     search = str(input("Please enter a username or real name to search for: "))
     search = '%' + search + '%'
     db = sqlite3.connect(DATABASE)
@@ -107,9 +117,8 @@ def search_username():
 
 # MAIN CODE __________________________________________________________________
 # Initial authentication 
-search_username()
 
-"""
+
 while True:
     if authenticate_user():
         print("Welcome!")
@@ -130,12 +139,10 @@ while True:
         print_all_contestants()
     elif choice == "2":
         if root_user_authentication():
-                custom_query()
+            custom_query()
     elif choice == "3":
         break
     elif choice == "4":
         individual_score()
     else:
         break
-        
-"""

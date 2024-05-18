@@ -38,19 +38,21 @@ def authenticate_user(): # added to main code
         return 1
     if username == "root" and password == "raspberrypi":
         return 2
+    else:
+        return False
 
 def root_user_authentication(): # added to main code
     global username
     global password
     if username == "admin" and password == "password":
-        print("Root user authentication required.")
+        print(colour.DARKCYAN + "Root user authentication required." + colour.END)
         username = input("username: ")
         password = input("password: ")
         root_user_authentication()
     if username == "root" and password == "raspberrypi":
         return True
     else:
-        print("Invalid username or password. Please try again.\n")
+        print(colour.RED + "Invalid username or password. Please try again.\n" + colour.END)
         username = input("username: ")
         password = input("password: ")
         root_user_authentication()
@@ -78,7 +80,7 @@ def custom_query(): # main code LAST
             print(item)
         db.close()
     except:
-        print("Invalid query, please try again.")
+        print(colour.RED + "Invalid query, please try again." + colour.END)
 
 def individual_score(): # main code 2
     try:
@@ -95,10 +97,10 @@ def individual_score(): # main code 2
             print(colour.BOLD + "Username: " + colour.END + results[1])
             print(colour.BOLD + "Total score: " + colour.END + str(results[2]) + "\n")
         else:
-            print("Your query did not return any results. Please try again.")
+            print(colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
         db.close()
     except:
-        print("Invalid query, please try again.")
+        print(colour.RED + "Invalid query, please try again." + colour.END)
 
 def search_username(): # main code 3
     try:
@@ -111,17 +113,16 @@ def search_username(): # main code 3
         results = cursor.fetchall()
         print(results)
         if results == []:
-            print("Your query did not return any results. Please try again.")
+            print(colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
         else:
             for item in results:
                 print(colour.BOLD + "Name: " + colour.END + item[0] + "\n" + colour.BOLD + "Username: " + colour.END + item[1] + "\n\n")
         db.close()
     except:
-        print("Invalid query, please try again.")
+        print(colour.RED + "Invalid query, please try again." + colour.END)
 
 # MAIN CODE __________________________________________________________________
 # Initial authentication 
-
 
 while True:
     if authenticate_user() == 1:
@@ -131,7 +132,7 @@ while True:
         print("Login succeeded, you have root priviliges.\n")
         break
     else:
-        print("Invalid username or password. Please try again.\n")
+        print(colour.RED + "Invalid username or password. Please try again.\n" + colour.END)
         continue
 
 # Deciding what to do

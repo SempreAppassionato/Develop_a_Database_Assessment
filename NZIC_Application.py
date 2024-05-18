@@ -4,12 +4,12 @@
 """ 
 Development next steps: 
 - Aesthetics of input prompts
-
+- Update comments
 """
 
 import sqlite3
 
-class color:
+class colour:
    PURPLE = '\033[95m'
    CYAN = '\033[96m'
    DARKCYAN = '\033[36m'
@@ -63,11 +63,11 @@ def print_all_contestants(): # main code 1
     cursor.execute(sql)
     results = cursor.fetchall()
     for item in results:
-        print(color.BOLD + "Name: " + color.END + item[1] + "\n" + color.BOLD + "Username: " + color.END + item[0] + "\n\n")
+        print(colour.BOLD + "Name: " + colour.END + item[1] + "\n" + colour.BOLD + "Username: " + colour.END + item[0] + "\n\n")
     db.close()
 
 def custom_query(): # main code LAST
-    print("Please enter your SQL query below")
+    print(colour.BOLD + "Please enter your SQL query below" + colour.END)
     try:
         userquery = str(input(": "))
         db = sqlite3.connect(DATABASE)
@@ -82,7 +82,7 @@ def custom_query(): # main code LAST
 
 def individual_score(): # main code 2
     try:
-        userIdentification = str(input("Please enter a username or real name to search for: ")).strip()
+        userIdentification = str(input(colour.BOLD + "Please enter a username or real name to search for: ") + colour.END).strip()
         userIdentification = str(userIdentification)
         db = sqlite3.connect(DATABASE)
         cursor = db.cursor()
@@ -91,9 +91,9 @@ def individual_score(): # main code 2
         rawResults = cursor.fetchall()
         if rawResults != [(None, None, None)]:
             results = rawResults[0]
-            print(color.BOLD + "Name: " + color.END + results[0])
-            print(color.BOLD + "Username: " + color.END + results[1])
-            print(color.BOLD + "Total score: " + color.END + str(results[2]) + "\n")
+            print(colour.BOLD + "Name: " + colour.END + results[0])
+            print(colour.BOLD + "Username: " + colour.END + results[1])
+            print(colour.BOLD + "Total score: " + colour.END + str(results[2]) + "\n")
         else:
             print("Your query did not return any results. Please try again.")
         db.close()
@@ -102,7 +102,7 @@ def individual_score(): # main code 2
 
 def search_username(): # main code 3
     try:
-        search = str(input("Please enter a username or real name to search for: "))
+        search = str(input(colour.BOLD + "Please enter a username or real name to search for: " + colour.END))
         search = '%' + search + '%'
         db = sqlite3.connect(DATABASE)
         cursor = db.cursor()
@@ -114,7 +114,7 @@ def search_username(): # main code 3
             print("Your query did not return any results. Please try again.")
         else:
             for item in results:
-                print(color.BOLD + "Name: " + color.END + item[0] + "\n" + color.BOLD + "Username: " + color.END + item[1] + "\n\n")
+                print(colour.BOLD + "Name: " + colour.END + item[0] + "\n" + colour.BOLD + "Username: " + colour.END + item[1] + "\n\n")
         db.close()
     except:
         print("Invalid query, please try again.")
@@ -125,24 +125,23 @@ def search_username(): # main code 3
 
 while True:
     if authenticate_user() == 1:
-        print("Login succeded, you have admin privileges!")
+        print("Login succeded, you have admin privileges.\n")
         break
     elif authenticate_user() == 2:
-        print("Login succeeded, you have root priviliges!")
+        print("Login succeeded, you have root priviliges.\n")
         break
     else:
-        print("Invalid username or password. Please try again.")
+        print("Invalid username or password. Please try again.\n")
         continue
 
 # Deciding what to do
 while True:
-    print(color.BOLD + "Welcome!" + color.END)
+    print(colour.BOLD + "Welcome!" + colour.END)
     print("1 - View all contestants' names and usernames")
     print("2 - View the score of a contestant by username or real name")
     print("3 - Search for a username or real name")
     print("4 - Enter a custom SQL query (root access required)")
-    print("Press any other key to exit.")
-    # see total user score by username or real name
+    print("Press any other key to exit.\n")
     choice = input(": ")
     if choice == "1":
         print_all_contestants()

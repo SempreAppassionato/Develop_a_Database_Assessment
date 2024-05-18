@@ -3,8 +3,7 @@
 
 """ 
 Development next steps: 
-- More functions
-    - Especially a search function
+- Aesthetics of input prompts
 
 """
 
@@ -36,9 +35,9 @@ def authenticate_user(): # added to main code
     username = input("username: ")
     password = input("password: ")
     if username == "admin" and password == "password":
-        return True
+        return 1
     if username == "root" and password == "raspberrypi":
-        return True
+        return 2
 
 def root_user_authentication(): # added to main code
     global username
@@ -81,7 +80,7 @@ def custom_query(): # main code LAST
     except:
         print("Invalid query, please try again.")
 
-def individual_score(): # main code 3
+def individual_score(): # main code 2
     try:
         userIdentification = str(input("Please enter a username or real name to search for: ")).strip()
         userIdentification = str(userIdentification)
@@ -101,27 +100,35 @@ def individual_score(): # main code 3
     except:
         print("Invalid query, please try again.")
 
-def search_username(): # main code 4
-    search = str(input("Please enter a username or real name to search for: "))
-    search = '%' + search + '%'
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
-    sql = "select real_name, username from User where real_name like ? or username like ?"
-    cursor.execute(sql, (search, search))
-    results = cursor.fetchall()
-    for item in results:
-        print(color.BOLD + "Name: " + color.END + item[0] + "\n" + color.BOLD + "Username: " + color.END + item[1] + "\n\n")
-    db.close()
-
-
+def search_username(): # main code 3
+    try:
+        search = str(input("Please enter a username or real name to search for: "))
+        search = '%' + search + '%'
+        db = sqlite3.connect(DATABASE)
+        cursor = db.cursor()
+        sql = "select real_name, username from User where real_name like ? or username like ?"
+        cursor.execute(sql, (search, search))
+        results = cursor.fetchall()
+        print(results)
+        if results == []:
+            print("Your query did not return any results. Please try again.")
+        else:
+            for item in results:
+                print(color.BOLD + "Name: " + color.END + item[0] + "\n" + color.BOLD + "Username: " + color.END + item[1] + "\n\n")
+        db.close()
+    except:
+        print("Invalid query, please try again.")
 
 # MAIN CODE __________________________________________________________________
 # Initial authentication 
 
 
 while True:
-    if authenticate_user():
-        print("Welcome!")
+    if authenticate_user() == 1:
+        print("Login succeded, you have admin privileges!")
+        break
+    elif authenticate_user() == 2:
+        print("Login succeeded, you have root priviliges!")
         break
     else:
         print("Invalid username or password. Please try again.")
@@ -129,20 +136,22 @@ while True:
 
 # Deciding what to do
 while True:
-    print("What would you like to do?")
-    print("1 - View all contestants")
-    print("2 - Enter a custom query")
-    print("3 - Exit")
+    print(color.BOLD + "Welcome!" + color.END)
+    print("1 - View all contestants' names and usernames")
+    print("2 - View the score of a contestant by username or real name")
+    print("3 - Search for a username or real name")
+    print("4 - Enter a custom SQL query (root access required)")
+    print("Press any other key to exit.")
     # see total user score by username or real name
     choice = input(": ")
     if choice == "1":
         print_all_contestants()
     elif choice == "2":
+        individual_score()
+    elif choice == "3":
+        search_username()
+    elif choice == "4":
         if root_user_authentication():
             custom_query()
-    elif choice == "3":
-        break
-    elif choice == "4":
-        individual_score()
     else:
         break

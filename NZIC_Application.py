@@ -29,17 +29,14 @@ global password
 # FUNCTIONS  ___________________________________________________________
 
 # Authentication functions
-def authenticate_user(): # added to main code
-    global username
-    global password
-    username = input("username: ")
-    password = input("password: ")
+def authenticate_user(username, password): # added to main code
     if username == "admin" and password == "password":
         return 1
-    if username == "root" and password == "raspberrypi":
+    elif username == "root" and password == "raspberrypi":
         return 2
     else:
-        return False
+        print(colour.RED + "Invalid username or password. Please try again.\n" + colour.END)
+        return -1
 
 def root_user_authentication(): # added to main code
     global username
@@ -113,7 +110,7 @@ def search_username(): # main code 3
         results = cursor.fetchall()
         print(results)
         if results == []:
-            print(colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
+            print(colour.END + colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
         else:
             for item in results:
                 print(colour.BOLD + "Name: " + colour.END + item[0] + "\n" + colour.BOLD + "Username: " + colour.END + item[1] + "\n\n")
@@ -125,19 +122,22 @@ def search_username(): # main code 3
 # Initial authentication 
 
 while True:
-    if authenticate_user() == 1:
-        print("Login succeded, you have admin privileges.\n")
+    username = input("username: ")
+    password = input("password: ")
+    login = authenticate_user(username, password)
+    if login == 1:
+        print(colour.GREEN + "Login succeded, you have admin privileges.\n" + colour.END)
         break
-    elif authenticate_user() == 2:
-        print("Login succeeded, you have root priviliges.\n")
+    elif login == 2:
+        print(colour.GREEN + "Login succeeded, you have root priviliges.\n" + colour.END)
         break
     else:
-        print(colour.RED + "Invalid username or password. Please try again.\n" + colour.END)
         continue
 
 # Deciding what to do
+
+print(colour.BOLD + "Welcome!" + colour.END)
 while True:
-    print(colour.BOLD + "Welcome!" + colour.END)
     print("1 - View all contestants' names and usernames")
     print("2 - View the score of a contestant by username or real name")
     print("3 - Search for a username or real name")

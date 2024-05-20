@@ -62,7 +62,9 @@ def print_all_contestants(): # main code 1
     cursor.execute(sql)
     results = cursor.fetchall()
     for item in results:
-        print(colour.BOLD + "Name: " + colour.END + item[1] + "\n" + colour.BOLD + "Username: " + colour.END + item[0] + "\n\n")
+        print(f"{item[1]:<40}{item[0]:<40}")
+    #for item in results:
+        #print(colour.BOLD + "Name: " + colour.END + item[1] + "\n" + colour.BOLD + "Username: " + colour.END + item[0] + "\n\n")
     db.close()
 
 def custom_query(): # main code LAST

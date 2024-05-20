@@ -69,13 +69,16 @@ def custom_query(): # main code LAST
     print(colour.BOLD + "Please enter your SQL query below" + colour.END)
     try:
         userquery = str(input(": "))
-        db = sqlite3.connect(DATABASE)
-        cursor = db.cursor()
-        cursor.execute(userquery)
-        results = cursor.fetchall()
-        for item in results:
-            print(item)
-        db.close()
+        if userquery.contains == "drop" or userquery.contains == "DROP":
+            print(colour.RED + "Invalid query, please try again." + colour.END)
+        else: 
+            db = sqlite3.connect(DATABASE)
+            cursor = db.cursor()
+            cursor.execute(userquery)
+            results = cursor.fetchall()
+            for item in results:
+                print(item)
+            db.close()
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
 
@@ -108,7 +111,6 @@ def search_username(): # main code 3
         sql = "select real_name, username from User where real_name like ? or username like ?"
         cursor.execute(sql, (search, search))
         results = cursor.fetchall()
-        print(results)
         if results == []:
             print(colour.END + colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
         else:

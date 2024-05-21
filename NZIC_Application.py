@@ -22,10 +22,12 @@ class colour:
    END = '\033[0m'
 
 # CONSTANTS AND VARIABLES ________________________________________________
-DATABASE = "NZIC.db"
+global resultsList
 global username
 global password
 
+resultsList = []
+DATABASE = "NZIC.db"
 # FUNCTIONS  ___________________________________________________________
 
 # Authentication functions
@@ -83,9 +85,13 @@ def custom_query(): # main code LAST
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
 
-def individual_score(): # main code 2
+def individual_score(username=None): # main code 2
     try:
-        userIdentification = str(input(colour.BOLD + "Please enter a username or real name to search for: ") + colour.END).strip()
+        if username != None:
+            userIdentification = username
+        else: 
+            userIdentification = str(input(colour.BOLD + "Please enter a username or real name to search for: " + colour.END))
+            userIdentification = userIdentification.strip()
         userIdentification = str(userIdentification)
         db = sqlite3.connect(DATABASE)
         cursor = db.cursor()
@@ -94,14 +100,14 @@ def individual_score(): # main code 2
         rawResults = cursor.fetchall()
         if rawResults != [(None, None, None)]:
             results = rawResults[0]
-            print(colour.BOLD + "Name: " + colour.END + results[0])
+            print(colour.BOLD + "\n\nName: " + colour.END + results[0])
             print(colour.BOLD + "Username: " + colour.END + results[1])
             print(colour.BOLD + "Total score: " + colour.END + str(results[2]) + "\n")
         else:
             print(colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
         db.close()
     except:
-        print(colour.RED + "Invalid query, please try again." + colour.END)
+        print(colour.RED + "Invalid query, please try again.\n" + colour.END)
 
 def search_username(): # main code 3
     try:
@@ -116,7 +122,9 @@ def search_username(): # main code 3
             print(colour.END + colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
         else:
             for item in results:
-                print(colour.BOLD + "Name: " + colour.END + item[0] + "\n" + colour.BOLD + "Username: " + colour.END + item[1] + "\n\n")
+                print(colour.BOLD + "\nName: " + colour.END + item[0] + "\n" + colour.BOLD + "Username: " + colour.END + item[1] + "\n\n")
+                # adding to the results table
+                resultsList.append(item[1])
         db.close()
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
@@ -153,6 +161,14 @@ while True:
         individual_score()
     elif choice == "3":
         search_username()
+        print("Would you like to see their score? (y/n)")
+        choice = input(": ")
+        if choice == "y":
+            for user in resultsList:
+                individual_score(user)
+            resultsList = []
+        else:
+            continue
     elif choice == "4":
         if root_user_authentication():
             custom_query()

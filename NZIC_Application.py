@@ -3,8 +3,8 @@
 
 """ 
 Development next steps: 
-- Aesthetics of input prompts
-- Update comments
+- Add overall ranking and ranking by one's score on individual questions 
+- add warnings and confirmation messages for dangerous queries
 """
 
 import sqlite3
@@ -25,6 +25,7 @@ class colour:
 global resultsList
 global username
 global password
+global dangerous
 
 resultsList = []
 DATABASE = "NZIC.db"
@@ -69,12 +70,23 @@ def print_all_contestants(): # main code 1
     db.close()
 
 def custom_query(): # main code LAST
+    global dangerous
+    dangerous = False
     print(colour.BOLD + "Please enter your SQL query below" + colour.END)
     try:
         userquery = str(input(": "))
         if userquery.contains == "drop" or userquery.contains == "DROP":
-            print(colour.RED + "Invalid query, please try again." + colour.END)
-        else: 
+            print(colour.RED + "Invalid query, please do not try again." + colour.END)
+            dangerous = True
+        if userquery.contains == "delete" or userquery.contains == "DELETE":
+            are_you_sure()
+        if userquery.contains == "update" or userquery.contains == "UPDATE":
+            are_you_sure()
+        if userquery.contains == "insert" or userquery.contains == "INSERT":
+            are_you_sure()
+        if userquery.contains == "create" or userquery.contains == "CREATE":
+            are_you_sure()
+        if dangerous != True:
             db = sqlite3.connect(DATABASE)
             cursor = db.cursor()
             cursor.execute(userquery)
@@ -110,6 +122,7 @@ def individual_score(username=None): # main code 2
         print(colour.RED + "Invalid query, please try again.\n" + colour.END)
 
 def search_username(): # main code 3
+    global resultsList
     try:
         search = str(input(colour.BOLD + "Please enter a username or real name to search for: " + colour.END))
         search = '%' + search + '%'
@@ -123,16 +136,24 @@ def search_username(): # main code 3
         else:
             for item in results:
                 print(colour.BOLD + "\nName: " + colour.END + item[0] + "\n" + colour.BOLD + "Username: " + colour.END + item[1] + "\n\n")
-                # adding to the results table
+                # adding to the results list
                 resultsList.append(item[1])
         db.close()
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
 
-# MAIN CODE __________________________________________________________________
-# Initial authentication 
+def are_you_sure():
+    global dangerous
+    print(colour.RED + "Are you sure you want to run this query? (y/n)" + colour.END)
+    choice = input(": ")
+    if choice == "y":
+        dangerous = False
+    else:
+        dangerous = True
 
-while True:
+
+# MAIN CODE __________________________________________________________________
+while True: # Initial authentication 
     username = input("username: ")
     password = input("password: ")
     login = authenticate_user(username, password)
@@ -145,10 +166,8 @@ while True:
     else:
         continue
 
-# Deciding what to do
-
 print(colour.BOLD + "Welcome!" + colour.END)
-while True:
+while True: # Main menu
     print("1 - View all contestants' names and usernames")
     print("2 - View the score of a contestant by username or real name")
     print("3 - Search for a username or real name")
@@ -166,7 +185,7 @@ while True:
         if choice == "y":
             for user in resultsList:
                 individual_score(user)
-            resultsList = []
+            resultsList = [] # clearing the results list 
         else:
             continue
     elif choice == "4":

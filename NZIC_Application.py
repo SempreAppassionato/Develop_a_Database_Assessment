@@ -4,7 +4,6 @@
 """ 
 Development next steps: 
 - Add overall ranking and ranking by one's score on individual questions 
-- add warnings and confirmation messages for dangerous queries
 """
 
 import sqlite3
@@ -29,6 +28,7 @@ global dangerous
 
 resultsList = []
 DATABASE = "NZIC.db"
+
 # FUNCTIONS  ___________________________________________________________
 
 # Authentication functions
@@ -64,7 +64,7 @@ def print_all_contestants(): # main code 1
     sql = "select real_name, username from User"
     cursor.execute(sql)
     results = cursor.fetchall()
-    print(colour.BOLD + "\n\nName" + "                                    " + "Username" + colour.END)
+    print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                   " + "|Username                            " + colour.END)
     for item in results:
         print(f"{item[1]:<40}{item[0]:<40}")
     db.close()
@@ -72,30 +72,44 @@ def print_all_contestants(): # main code 1
 def custom_query(): # main code LAST
     global dangerous
     dangerous = False
+    exit = False
     print(colour.BOLD + "Please enter your SQL query below" + colour.END)
     try:
         userquery = str(input(": "))
-        if userquery.contains == "drop" or userquery.contains == "DROP":
-            print(colour.RED + "Invalid query, please do not try again." + colour.END)
-            dangerous = True
-        if userquery.contains == "delete" or userquery.contains == "DELETE":
-            are_you_sure()
-        if userquery.contains == "update" or userquery.contains == "UPDATE":
-            are_you_sure()
-        if userquery.contains == "insert" or userquery.contains == "INSERT":
-            are_you_sure()
-        if userquery.contains == "create" or userquery.contains == "CREATE":
-            are_you_sure()
-        if dangerous != True:
-            db = sqlite3.connect(DATABASE)
-            cursor = db.cursor()
-            cursor.execute(userquery)
-            results = cursor.fetchall()
-            for item in results:
-                print(item)
-            db.close()
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
+    if "drop" in userquery or "DROP" in userquery:
+        print(colour.RED + "Invalid query, please do not try again." + colour.END)
+        dangerous = True
+    if "delete" in userquery or "DELETE" in userquery:
+        if are_you_sure() == 2:
+            dangerous = True
+    if "update" in userquery or "UPDATE" in userquery:
+        if are_you_sure() == 2:
+            dangerous = True
+    if "insert" in userquery or "INSERT" in userquery:
+        if are_you_sure() == 2:
+            dangerous = True
+    if "create" in userquery or "CREATE" in userquery:
+        if are_you_sure() == 2:
+            dangerous = True
+    if dangerous != True:
+        try: 
+            db = sqlite3.connect(DATABASE)
+            cursor = db.cursor()
+        except: 
+            print(colour.RED + "Database connection error" + colour.END)
+        try:
+            cursor.execute(userquery)
+            results = cursor.fetchall()
+        except: 
+            print(colour.RED + "Invalid query, please try again." + colour.END)
+            exit = True
+        if exit != True:
+            for item in results:
+                print(item)
+        print("\n\n")
+        db.close()
 
 def individual_score(username=None): # main code 2
     try:
@@ -142,15 +156,21 @@ def search_username(): # main code 3
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
 
-def are_you_sure():
-    global dangerous
+def are_you_sure(): # used to ask the user if they are sure they want to run a dangerous query
     print(colour.RED + "Are you sure you want to run this query? (y/n)" + colour.END)
     choice = input(": ")
     if choice == "y":
-        dangerous = False
+        return 1 #not dangerous
     else:
-        dangerous = True
+        return 2 # dangerous
 
+def try_again():
+    # when a warning pops with a try again message, this function will be used to see if the user wants to run it again
+    # if yes, run again
+    # if no, return to main menu
+    pass
+
+# other functions
 
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 
@@ -161,7 +181,7 @@ while True: # Initial authentication
         print(colour.GREEN + "Login succeded, you have admin privileges.\n" + colour.END)
         break
     elif login == 2:
-        print(colour.GREEN + "Login succeeded, you have root priviliges.\n" + colour.END)
+        print(colour.GREEN + "Login succeeded," + colour.RED + " you have root priviliges.\n" + colour.END)
         break
     else:
         continue

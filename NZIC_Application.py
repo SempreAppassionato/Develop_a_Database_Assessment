@@ -25,9 +25,11 @@ global resultsList
 global username
 global password
 global dangerous
-
+global customUsername
+global customPassword
 resultsList = []
 DATABASE = "NZIC.db"
+
 
 # FUNCTIONS  ___________________________________________________________
 
@@ -37,6 +39,8 @@ def authenticate_user(username, password): # added to main code
         return 1
     elif username == "root" and password == "raspberrypi":
         return 2
+    elif username == customUsername and password == customPassword:
+        return 1
     else:
         print(colour.RED + "Invalid username or password. Please try again.\n" + colour.END)
         return -1
@@ -64,7 +68,7 @@ def print_all_contestants(): # main code 1
     sql = "select real_name, username from User"
     cursor.execute(sql)
     results = cursor.fetchall()
-    print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                   " + "|Username                            " + colour.END)
+    print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                    " + "Username                            " + colour.END)
     for item in results:
         print(f"{item[1]:<40}{item[0]:<40}")
     db.close()
@@ -78,21 +82,16 @@ def custom_query(): # main code LAST
         userquery = str(input(": "))
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
-    if "drop" in userquery or "DROP" in userquery:
+    dangerousKeywords = ["drop", "delete"]
+    if any(keyword in userquery.lower() for keyword in dangerousKeywords):
         print(colour.RED + "Invalid query, please do not try again." + colour.END)
         dangerous = True
-    if "delete" in userquery or "DELETE" in userquery:
+    concerningKeywords = ["update", "insert", "create"]
+    if any(keyword in userquery.lower() for keyword in concerningKeywords):
         if are_you_sure() == 2:
             dangerous = True
-    if "update" in userquery or "UPDATE" in userquery:
-        if are_you_sure() == 2:
-            dangerous = True
-    if "insert" in userquery or "INSERT" in userquery:
-        if are_you_sure() == 2:
-            dangerous = True
-    if "create" in userquery or "CREATE" in userquery:
-        if are_you_sure() == 2:
-            dangerous = True
+        elif are_you_sure() == 1:
+            dangerous = False
     if dangerous != True:
         try: 
             db = sqlite3.connect(DATABASE)

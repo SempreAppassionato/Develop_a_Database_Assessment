@@ -70,7 +70,7 @@ def print_all_contestants(): # main code 1
     results = cursor.fetchall()
     print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                    " + "Username                            " + colour.END)
     for item in results:
-        print(f"{item[1]:<40}{item[0]:<40}")
+        print(f"{item[1]:<40}{item[0]:<40}\n")
     db.close()
 
 def custom_query(): # main code LAST
@@ -155,7 +155,7 @@ def search_username(): # main code 3
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
 
-def rank_by_total_score(): # main code x
+def rank_by_total_score(): # main code 5
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
     sql = "select rank, real_name, username from User order by rank asc"
@@ -164,6 +164,26 @@ def rank_by_total_score(): # main code x
     print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                            " + colour.END)
     for item in results:
         print(f"{item[0]:<5}{item[1]:<40}{item[2]:<40}")
+    db.close()
+
+def rank_by_question_score(): # main code y
+    try:
+        questionID = int(input("Please enter the a question number: "))
+    except:
+        print(colour.RED + "Invalid question number, please try again." + colour.END)
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+    sql = "select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = ?) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;"
+    cursor.execute(sql, (questionID,))
+    results = cursor.fetchall()
+    print(results)
+    print(type(results))
+    print("The question is " + results[0][2] + " and the maximum points is " + str(results[0][4]) + ".")
+    print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                                " + "Points       "+ colour.END)
+    i = 1
+    for item in results:
+        print(f"{i:<5}{item[0]:<40}{item[1]:<40}{item[3]:<40}")
+        i += 1
     db.close()
 
 # other functions
@@ -184,7 +204,7 @@ def try_again():
 # other functions
 
 # MAIN CODE __________________________________________________________________
-rank_by_total_score()
+rank_by_question_score()
 while True: # Initial authentication 
     username = input("username: ")
     password = input("password: ")
@@ -204,6 +224,7 @@ while True: # Main menu
     print("2 - View the score of a contestant by username or real name")
     print("3 - Search for a username or real name")
     print("4 - Enter a custom SQL query (root access required)")
+    print("5 - View the overall ranking by total score")
     print("Press any other key to exit.\n")
     choice = input(": ")
     if choice == "1":
@@ -223,5 +244,10 @@ while True: # Main menu
     elif choice == "4":
         if root_user_authentication():
             custom_query()
+    elif choice == "5":
+        rank_by_total_score()
     else:
         break
+
+
+# select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = 1) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;

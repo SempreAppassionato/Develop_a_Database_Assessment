@@ -155,6 +155,18 @@ def search_username(): # main code 3
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
 
+def rank_by_total_score(): # main code x
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+    sql = "select rank, real_name, username from User order by rank asc"
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                            " + colour.END)
+    for item in results:
+        print(f"{item[0]:<5}{item[1]:<40}{item[2]:<40}")
+    db.close()
+
+# other functions
 def are_you_sure(): # used to ask the user if they are sure they want to run a dangerous query
     print(colour.RED + "Are you sure you want to run this query? (y/n)" + colour.END)
     choice = input(": ")
@@ -172,6 +184,7 @@ def try_again():
 # other functions
 
 # MAIN CODE __________________________________________________________________
+rank_by_total_score()
 while True: # Initial authentication 
     username = input("username: ")
     password = input("password: ")

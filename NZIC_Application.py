@@ -225,6 +225,7 @@ while True: # Main menu
     print("3 - Search for a username or real name")
     print("4 - Enter a custom SQL query (root access required)")
     print("5 - View the overall ranking by total score")
+    print("6 - View the ranking by score on a specific question")
     print("Press any other key to exit.\n")
     choice = input(": ")
     if choice == "1":
@@ -246,5 +247,7 @@ while True: # Main menu
             custom_query()
     elif choice == "5":
         rank_by_total_score()
+    elif choice == "6":
+        rank_by_question_score()
     else:
         break

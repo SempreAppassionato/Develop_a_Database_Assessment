@@ -248,6 +248,3 @@ while True: # Main menu
         rank_by_total_score()
     else:
         break
-
-
-# select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = 1) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;

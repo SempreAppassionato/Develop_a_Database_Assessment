@@ -204,7 +204,7 @@ def try_again():
 # other functions
 
 # MAIN CODE __________________________________________________________________
-rank_by_question_score()
+
 while True: # Initial authentication 
     username = input("username: ")
     password = input("password: ")

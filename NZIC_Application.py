@@ -25,17 +25,25 @@ global resultsList
 global username
 global password
 global dangerous
+global customUsername
+global customPassword
 resultsList = []
 DATABASE = "NZIC.db"
+
+customUsername = "22343"
+customPassword = "library"
 
 # FUNCTIONS  ___________________________________________________________
 
 # Authentication functions
 def authenticate_user(username, password): # added to main code
+    global customUsername
     if username == "admin" and password == "password":
         return 1
     elif username == "root" and password == "raspberrypi":
         return 2
+    elif username == customUsername and password == customPassword:
+        return 1
     else:
         print(colour.RED + "Invalid username or password. Please try again.\n" + colour.END)
         return -1

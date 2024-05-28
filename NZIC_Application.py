@@ -105,7 +105,7 @@ def custom_query(): # main code LAST
         print("\n\n")
         db.close()
 
-def individual_score(username=None): # main code 2
+def individual_score(username=None): # not in main code anymore
     try:
         if username != None:
             userIdentification = username
@@ -120,7 +120,7 @@ def individual_score(username=None): # main code 2
         rawResults = cursor.fetchall()
         if rawResults != [(None, None, None)]:
             results = rawResults[0]
-            print(colour.BOLD + "\n\nName: " + colour.END + results[0])
+            print(colour.BOLD + "\nName: " + colour.END + results[0])
             print(colour.BOLD + "Username: " + colour.END + results[1])
             print(colour.BOLD + "Total score: " + colour.END + str(results[2]) + "\n")
         else:
@@ -140,11 +140,9 @@ def search_username(): # main code 3
         cursor.execute(sql, (search, search))
         results = cursor.fetchall()
         if results == []:
-            print(colour.END + colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
+            print(colour.END + colour.DARKCYAN + "Your query did not return any results. Please try again. \n" + colour.END)
         else:
             for item in results:
-                print(colour.BOLD + "\nName: " + colour.END + item[0] + "\n" + colour.BOLD + "Username: " + colour.END + item[1] + "\n\n")
-                # adding to the results list
                 resultsList.append(item[1])
         db.close()
     except:
@@ -216,7 +214,6 @@ while True: # Initial authentication
 print(colour.BOLD + "Welcome!" + colour.END)
 while True: # Main menu
     print("1 - View all contestants' names and usernames")
-    print("2 - View the score of a contestant by username or real name")
     print("3 - Search for a username or real name")
     print("4 - Enter a custom SQL query (root access required)")
     print("5 - View the overall ranking by total score")
@@ -225,18 +222,11 @@ while True: # Main menu
     choice = input(": ")
     if choice == "1":
         print_all_contestants()
-    elif choice == "2":
-        individual_score()
     elif choice == "3":
         search_username()
-        print("Would you like to see their score? (y/n)")
-        choice = input(": ")
-        if choice == "y":
-            for user in resultsList:
-                individual_score(user)
-            resultsList = [] # clearing the results list 
-        else:
-            continue
+        for user in resultsList:
+            individual_score(user)
+        resultsList = [] # clearing the results list 
     elif choice == "4":
         if root_user_authentication():
             custom_query()

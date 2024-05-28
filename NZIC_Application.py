@@ -3,7 +3,7 @@
 
 """ 
 Development next steps: 
-- Add overall ranking and ranking by one's score on individual questions 
+- Make the code shorter by making an execute SQL function
 """
 
 import sqlite3
@@ -89,7 +89,7 @@ def custom_query(): # main code LAST
     if any(keyword in userquery.lower() for keyword in dangerousKeywords):
         print(colour.RED + "Invalid query, please do not try again." + colour.END)
         dangerous = True
-    concerningKeywords = ["update", "insert", "create"]
+    concerningKeywords = ["update", "insert", "create", "replace"]
     if any(keyword in userquery.lower() for keyword in concerningKeywords):
         if are_you_sure() == 2:
             dangerous = True

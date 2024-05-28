@@ -177,8 +177,6 @@ def rank_by_question_score(): # main code y
     sql = "select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = ?) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;"
     cursor.execute(sql, (questionID,))
     results = cursor.fetchall()
-    print(results)
-    print(type(results))
     print("The question is " + results[0][2] + " and the maximum points is " + str(results[0][4]) + ".")
     print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                                " + "Points       "+ colour.END)
     i = 1
@@ -206,6 +204,8 @@ def try_again():
 
 # MAIN CODE __________________________________________________________________
 
+
+rank_by_question_score()
 while True: # Initial authentication 
     username = input("username: ")
     password = input("password: ")
@@ -222,7 +222,7 @@ while True: # Initial authentication
 print(colour.BOLD + "Welcome!" + colour.END)
 while True: # Main menu
     print("1 - View all contestants' names and usernames")
-    print("3 - Search for a username or real name")
+    print("3 - Search for a username or real name to see user details")
     print("4 - Enter a custom SQL query (root access required)")
     print("5 - View the overall ranking by total score")
     print("6 - View the ranking by score on a specific question")

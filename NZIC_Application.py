@@ -169,20 +169,23 @@ def rank_by_total_score(): # main code 5
 
 def rank_by_question_score(): # main code y
     try:
-        questionID = int(input("Please enter the a question number: "))
+        questionID = int(input("Please enter the a question number (1, 2, 3, 4, or 5): "))
     except:
         print(colour.RED + "Invalid question number, please try again." + colour.END)
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
     sql = "select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = ?) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;"
-    cursor.execute(sql, (questionID,))
-    results = cursor.fetchall()
-    print("The question is " + results[0][2] + " and the maximum points is " + str(results[0][4]) + ".")
-    print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                                " + "Points       "+ colour.END)
-    i = 1
-    for item in results:
-        print(f"{i:<5}{item[0]:<40}{item[1]:<40}{item[3]:<40}")
-        i += 1
+    try:
+        cursor.execute(sql, (questionID,))
+        results = cursor.fetchall()
+        print("The question is " + results[0][2] + " and the maximum points is " + str(results[0][4]) + ".")
+        print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                                " + "Points       "+ colour.END)
+        i = 1
+        for item in results:
+            print(f"{i:<5}{item[0]:<40}{item[1]:<40}{item[3]:<40}")
+            i += 1
+    except:
+        print(colour.RED + "Invalid question number, please try again.\n" + colour.END)
     db.close()
 
 # other functions
@@ -203,9 +206,6 @@ def try_again():
 # other functions
 
 # MAIN CODE __________________________________________________________________
-
-
-rank_by_question_score()
 while True: # Initial authentication 
     username = input("username: ")
     password = input("password: ")

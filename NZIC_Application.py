@@ -218,7 +218,7 @@ while True: # Main menu
     print("4 - Enter a custom SQL query (root access required)")
     print("5 - View the overall ranking by total score")
     print("6 - View the ranking by score on a specific question")
-    print("Press any other key to exit.\n")
+    print(colour.PURPLE + "\nPress press " + colour.BOLD + "q" + colour.END + colour.PURPLE + " to exit\n" + colour.END)
     choice = input(": ")
     if choice == "1":
         print_all_contestants()
@@ -234,5 +234,6 @@ while True: # Main menu
         rank_by_total_score()
     elif choice == "6":
         rank_by_question_score()
-    else:
+    elif choice == "q" or "Q" or "q " or "Q ":
+        print(colour.GREEN + "\n\nHow was your experience of this application? Your feedback will be sincerely appreciated. \nContact: 22343@burnside.school.nz\n\n\n\n")
         break

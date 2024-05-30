@@ -203,6 +203,14 @@ def try_again():
     # if no, return to main menu
     pass
 
+def run_sql(query):
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+    cursor.execute(query)
+    results = cursor.fetchall()
+    db.close()
+    return results
+
 # other functions
 
 # MAIN CODE __________________________________________________________________
@@ -219,6 +227,7 @@ while True: # Initial authentication
     else:
         continue
 
+print("------------------------------------------------------")
 print(colour.BOLD + "Welcome!" + colour.END)
 while True: # Main menu
     print("1 - View all contestants' names and usernames")
@@ -242,6 +251,6 @@ while True: # Main menu
         rank_by_total_score()
     elif choice == "6":
         rank_by_question_score()
-    elif choice == "q" or "Q" or "q " or "Q ":
+    elif choice == "q" or choice == "Q" or choice == "q " or choice == "Q ":
         print(colour.GREEN + "\n\nHow was your experience of this application? Your feedback will be sincerely appreciated. \nContact: 22343@burnside.school.nz\n\n\n\n")
         break

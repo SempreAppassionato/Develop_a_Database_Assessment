@@ -144,15 +144,12 @@ def search_username(): # main code 3
         print(colour.RED + "Invalid query, please try again." + colour.END)
 
 def rank_by_total_score(): # main code 5
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
     sql = "select rank, real_name, username from User order by rank asc"
-    cursor.execute(sql)
-    results = cursor.fetchall()
+    results = run_sql(sql)
     print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                            " + colour.END)
     for item in results:
         print(f"{item[0]:<5}{item[1]:<40}{item[2]:<40}")
-    db.close()
+    print("\n\n")
 
 def rank_by_question_score(): # main code y
     try:
@@ -173,6 +170,7 @@ def rank_by_question_score(): # main code y
             i += 1
     except:
         print(colour.RED + "Invalid question number, please try again.\n" + colour.END)
+        print("\n\n")
     db.close()
 
 # other functions

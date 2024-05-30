@@ -66,17 +66,17 @@ def root_user_authentication(): # added to main code
         root_user_authentication()
 
 # Query functions
-def print_all_contestants(): # main code 1 
+def print_all_contestants(): # main code 1 CLEANED UP
     sql = "select real_name, username from User"
     results = run_sql(sql)
+    print(results)
     print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                    " + "Username                            " + colour.END)
     for item in results:
         print(f"{item[1]:<40}{item[0]:<40}\n")
 
-def custom_query(): # main code LAST
+def custom_query(): # main code CLEANED UP
     global dangerous
     dangerous = False
-    exit = False
     print(colour.BOLD + "Please enter your SQL query below" + colour.END)
     try:
         userquery = str(input(": "))
@@ -88,27 +88,17 @@ def custom_query(): # main code LAST
         dangerous = True
     concerningKeywords = ["update", "insert", "create", "replace"]
     if any(keyword in userquery.lower() for keyword in concerningKeywords):
-        if are_you_sure() == 2:
+        choice = are_you_sure()
+        if choice == 2:
             dangerous = True
-        elif are_you_sure() == 1:
+        elif choice == 1:
             dangerous = False
     if dangerous != True:
-        try: 
-            db = sqlite3.connect(DATABASE)
-            cursor = db.cursor()
-        except: 
-            print(colour.RED + "Database connection error" + colour.END)
-        try:
-            cursor.execute(userquery)
-            results = cursor.fetchall()
-        except: 
-            print(colour.RED + "Invalid query, please try again." + colour.END)
-            exit = True
-        if exit != True:
+        results = run_sql(userquery)
+        if results != 1:
             for item in results:
                 print(item)
         print("\n\n")
-        db.close()
 
 def individual_score(username=None): # not in main code anymore
     try:
@@ -206,19 +196,17 @@ def run_sql(query):
         cursor = db.cursor()
     except:
         print(colour.RED + "Database connection error" + colour.END)
+        return 1
     try:
         cursor.execute(query)
         results = cursor.fetchall()
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
+        return 1
     db.close()
-    print(results)
     return results
 
 # other functions
-
-#query = "select * from User"
-#run_sql(query)
 
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 

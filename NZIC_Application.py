@@ -4,6 +4,7 @@
 """ 
 Development next steps: 
 - Make the code shorter by making an execute SQL function
+- add comments 
 """
 
 import sqlite3
@@ -66,15 +67,11 @@ def root_user_authentication(): # added to main code
 
 # Query functions
 def print_all_contestants(): # main code 1 
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
     sql = "select real_name, username from User"
-    cursor.execute(sql)
-    results = cursor.fetchall()
+    results = run_sql(sql)
     print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                    " + "Username                            " + colour.END)
     for item in results:
         print(f"{item[1]:<40}{item[0]:<40}\n")
-    db.close()
 
 def custom_query(): # main code LAST
     global dangerous
@@ -204,14 +201,24 @@ def try_again():
     pass
 
 def run_sql(query):
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
-    cursor.execute(query)
-    results = cursor.fetchall()
+    try:
+        db = sqlite3.connect(DATABASE)
+        cursor = db.cursor()
+    except:
+        print(colour.RED + "Database connection error" + colour.END)
+    try:
+        cursor.execute(query)
+        results = cursor.fetchall()
+    except:
+        print(colour.RED + "Invalid query, please try again." + colour.END)
     db.close()
+    print(results)
     return results
 
 # other functions
+
+#query = "select * from User"
+#run_sql(query)
 
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 

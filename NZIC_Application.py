@@ -274,31 +274,27 @@ def are_you_sure(): # used to ask the user if they are sure they want to run a d
     else:
         return 2 # dangerous
 
-def run_sql(query, input=None, inputRepeat = 0):
-    try:
-        db = sqlite3.connect(DATABASE)
-        cursor = db.cursor()
-    except:
-        print(colour.RED + "Database connection error" + colour.END)
-        return 1
-    try:
-        if input != None and inputRepeat == 0:
-            cursor.execute(query, (input,))
-        elif input != None and inputRepeat != 0:
-            query = "query, (input,"
-            for i in inputRepeat:
-                query = query + ", input,"
-            query = query + ")"
-            cursor.execute(query)
-        else:
-            cursor.execute(query)
-        results = cursor.fetchall()
-    except:
-        print(colour.RED + "Invalid query, please try again." + colour.END)
-        return 1
+def run_sql(query, input=None):
+    # this function assumes that the input will be the same each time
+    # inputRepeat = how many times the ? appears in the query
+    inputRepeat = query.count("?")
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+    if input != None and inputRepeat == 0:
+        cursor.execute(query, (input,))
+    elif input != None and inputRepeat != 0:
+        input = "'" + input + "'"
+        modifiedQuery = query.replace("?", input)
+        cursor.execute(modifiedQuery)
+    else:
+        cursor.execute(query)
+    results = cursor.fetchall()
     db.close()
     return results
 
+sql = "select real_name, username from User where real_name like ? or username like ?"
+results = run_sql(sql, input="yixiu")
+print(results)
 
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 

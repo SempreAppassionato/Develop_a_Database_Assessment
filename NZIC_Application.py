@@ -185,7 +185,7 @@ def rank_by_question_score(): # main code 5
     sql = "select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = ?) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;"
     try:
         rawResults = run_sql(sql, questionID)
-        print("The question is " + rawResults[0][2] + " and the maximum points is " + str(rawResults[0][4]) + ".")
+        print("\n\nThe question " + colour.BOLD + rawResults[0][2] + colour.END + " yelids a maximum of " + colour.BOLD + str(rawResults[0][4]) + colour.END + " points.\n")
         print(colour.BOLD + colour.UNDERLINE + "Question Rank" + " Name" + "                                    " + "Username                                " + "Score       "+ colour.END)
         i = 1
         for item in rawResults:
@@ -266,7 +266,7 @@ def rank_inside_school(): # main code 6
     try:
         rawResults = run_sql(sql, school)
         if rawResults[0] != []:
-            print(colour.BOLD + "\nRanking for " + school + ":" + colour.END)
+            print(colour.BOLD + "\nRanking for " + school + ": \n" + colour.END)
             print(colour.BOLD + colour.UNDERLINE + "Internal-Rank" + " Name" + "                                    " + "Username                                " + "Score       "+ colour.END)
             i = 1
             for item in rawResults:

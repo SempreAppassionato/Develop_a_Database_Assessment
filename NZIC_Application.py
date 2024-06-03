@@ -8,6 +8,7 @@ Development next steps:
 """
 
 import sqlite3
+import time
 
 class colour:
    PURPLE = '\033[95m'
@@ -66,13 +67,12 @@ def root_user_authentication(): # added to main code
         root_user_authentication()
 
 # Query functions
-def print_all_contestants(): # main code 1 CLEANED UP
-    sql = "select real_name, username from User"
+def print_all_contestants(): # Main code 1
+    sql = "select real_name, username, school from User"
     results = run_sql(sql)
-    print(results)
-    print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                    " + "Username                            " + colour.END)
+    print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                    " + "Username                                " + "School                                         " + colour.END)
     for item in results:
-        print(f"{item[1]:<40}{item[0]:<40}\n")
+        print(f"{item[1]:<40}{item[0]:<40}{item[2]:<40}\n")
 
 def custom_query(): # main code CLEANED UP
     global dangerous
@@ -98,9 +98,8 @@ def custom_query(): # main code CLEANED UP
         if results != 1:
             for item in results:
                 print(item)
-        print("\n\n")
 
-def individual_score(username=None): # not in main code anymore
+def individual_score(username=None): # main code 3
     try:
         if username != None:
             userIdentification = username
@@ -110,14 +109,15 @@ def individual_score(username=None): # not in main code anymore
         userIdentification = str(userIdentification)
         db = sqlite3.connect(DATABASE)
         cursor = db.cursor()
-        sql = "select User.real_name, User.username, SUM(question_score) from User, Question_score where User.id = Question_score.user_id and (User.real_name = '" + userIdentification + "' or User.username = '" + userIdentification + "')"
+        sql = "select User.real_name, User.username, User.school, SUM(question_score) from User, Question_score where User.id = Question_score.user_id and (User.real_name = '" + userIdentification + "' or User.username = '" + userIdentification + "')"
         cursor.execute(sql)
         rawResults = cursor.fetchall()
         if rawResults != [(None, None, None)]:
             results = rawResults[0]
-            print(colour.BOLD + "\nName: " + colour.END + results[0])
-            print(colour.BOLD + "Username: " + colour.END + results[1])
-            print(colour.BOLD + "Total score: " + colour.END + str(results[2]) + "\n")
+            print(colour.BOLD + "\nName: " + colour.END + results[1])
+            print(colour.BOLD + "Username: " + colour.END + results[0])
+            print(colour.BOLD + "School: " + colour.END + results[2])
+            print(colour.BOLD + "Total score: " + colour.END + str(results[3]) + "\n")
         else:
             print(colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
         db.close()
@@ -149,7 +149,6 @@ def rank_by_total_score(): # main code 5
     print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                            " + colour.END)
     for item in results:
         print(f"{item[0]:<5}{item[1]:<40}{item[2]:<40}")
-    print("\n\n")
 
 def rank_by_question_score(): # main code y
     try:
@@ -170,7 +169,6 @@ def rank_by_question_score(): # main code y
             i += 1
     except:
         print(colour.RED + "Invalid question number, please try again.\n" + colour.END)
-        print("\n\n")
     db.close()
 
 # other functions
@@ -220,15 +218,17 @@ while True: # Initial authentication
     else:
         continue
 
-print("------------------------------------------------------")
 print(colour.BOLD + "Welcome!" + colour.END)
 while True: # Main menu
-    print("1 - View all contestants' names and usernames")
+    time.sleep(0.7)
+    print("\n\n----------------------------------------------")
+    print("1 - View all contestants")
     print("3 - Search for a username or real name to see user details")
     print("4 - Enter a custom SQL query (root access required)")
     print("5 - View the overall ranking by total score")
     print("6 - View the ranking by score on a specific question")
-    print(colour.PURPLE + "\nPress press " + colour.BOLD + "q" + colour.END + colour.PURPLE + " to exit\n" + colour.END)
+    print(colour.PURPLE + "\nPress press " + colour.BOLD + "q" + colour.END + colour.PURPLE + " to exit" + colour.END)
+    print("----------------------------------------------\n")
     choice = input(": ")
     if choice == "1":
         print_all_contestants()

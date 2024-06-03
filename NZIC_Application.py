@@ -53,10 +53,11 @@ def authenticate_user(username, password): # added to main code
 def root_user_authentication(): # added to main code
     global username
     global password
-    print(colour.RED + "Checking user priveleges. (Root User required)" + colour.END)
+    print(colour.RED + "Checking user priveleges..." + colour.END)
     if username == "admin" and password == "password":
-        print(colour.DARKCYAN + "Root user authentication required." + colour.END)
+        print(colour.DARKCYAN + "This user is not in the sudoers file.\nThis incident has been reported to the administrator." + colour.END)
     if username == "root" and password == "raspberrypi":
+        print("Passed.")
         return True
     try:
         username = str(input("username: "))
@@ -171,7 +172,7 @@ def rank_by_question_score(): # main code 5
         cursor.execute(sql, (questionID,))
         results = cursor.fetchall()
         print("The question is " + results[0][2] + " and the maximum points is " + str(results[0][4]) + ".")
-        print(colour.BOLD + colour.UNDERLINE + "Question Rank" + " Name" + "                                    " + "Username                                " + "Points       "+ colour.END)
+        print(colour.BOLD + colour.UNDERLINE + "Question Rank" + " Name" + "                                    " + "Username                                " + "Score       "+ colour.END)
         i = 1
         for item in results:
             print(f"{i:<10}    {item[0]:<40}{item[1]:<40}{item[3]:<40}")
@@ -180,8 +181,7 @@ def rank_by_question_score(): # main code 5
         print(colour.RED + "Invalid question number, please try again.\n" + colour.END)
     db.close()
 
-def rank_inside_school():
-    # select real_name, username, sum(question_score) from Question_score, User where (user.id = Question_score.user_id and user.school = ?) group by user.id order by rank asc;
+def rank_inside_school(): # main code 6
     print(colour.BOLD + "\nThe following schools had students who participated in this round: " + colour.END)
     print("""
     Macleans College
@@ -240,8 +240,34 @@ def rank_inside_school():
     ACG Sunderland
     Amesbury School
     Newlands Intermediate""")
-
-    school = input("Please enter the name of the school you would like to see the ranking for: ")
+    school = str(input(colour.BOLD + "\nPlease enter the name of the school to see the internal ranking of its students: " + colour.END))
+    school = school.strip()
+    try:
+        db = sqlite3.connect(DATABASE)
+        cursor = db.cursor()
+    except:
+        print(colour.RED + "Database connection error" + colour.END)
+    sql = "select real_name, username, sum(question_score) from Question_score, User where (user.id = Question_score.user_id and user.school = ?) group by user.id order by rank asc;"
+    try:
+        cursor.execute(sql, (school,))
+        results = cursor.fetchall()
+        if results[0] != []:
+            print(colour.BOLD + "\nRanking for " + school + ":" + colour.END)
+            print(colour.BOLD + colour.UNDERLINE + "Internal-Rank" + " Name" + "                                    " + "Username                                " + "Score       "+ colour.END)
+            i = 1
+            for item in results:
+                print(f"{i:<10}    {item[1]:<40}{item[0]:<40}{item[2]:<40}")
+                i += 1
+        db.close()
+    except:
+        print(colour.RED + "Invalid school name, please try again.\n" + colour.END)
+        while True:
+            print("Try again? (y/n)")
+            choice = input(": ")
+            if choice == "y" or choice == "Y":
+                rank_inside_school()
+            else:
+                break
 
 # other functions
 def are_you_sure(): # used to ask the user if they are sure they want to run a dangerous query
@@ -251,12 +277,6 @@ def are_you_sure(): # used to ask the user if they are sure they want to run a d
         return 1 #not dangerous
     else:
         return 2 # dangerous
-
-def try_again():
-    # when a warning pops with a try again message, this function will be used to see if the user wants to run it again
-    # if yes, run again
-    # if no, return to main menu
-    pass
 
 def run_sql(query):
     try:
@@ -277,7 +297,7 @@ def run_sql(query):
 # other functions
 
 
-#rank_inside_school()
+rank_inside_school()
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 
     try:

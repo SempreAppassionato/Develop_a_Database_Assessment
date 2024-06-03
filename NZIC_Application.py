@@ -3,7 +3,7 @@
 
 """ 
 Development next steps: 
-- Make the code shorter by making an execute SQL function
+- make a try again function
 - add comments 
 """
 

@@ -56,6 +56,8 @@ def root_user_authentication(): # added to main code
     print(colour.RED + "Checking user priveleges..." + colour.END)
     if username == "admin" and password == "password":
         print(colour.DARKCYAN + "This user is not in the sudoers file.\nThis incident has been reported to the administrator." + colour.END)
+        time.sleep(1)
+        print("\nNo, just a little Linux joke. Please login as the root user below (;")
     if username == "root" and password == "raspberrypi":
         print("Passed.")
         return True
@@ -110,19 +112,22 @@ def search_username(): # JOINED main code 2
     try:
         search = str(input(colour.BOLD + "Please enter a username or real name to search for: " + colour.END))
         search = '%' + search + '%'
-        db = sqlite3.connect(DATABASE)
-        cursor = db.cursor()
         sql = "select real_name, username from User where real_name like ? or username like ?"
-        cursor.execute(sql, (search, search))
-        results = cursor.fetchall()
-        if results == []:
+        rawResults = run_sql(sql, search)
+        if rawResults == []:
             print(colour.END + colour.DARKCYAN + "Your query did not return any results. Please try again. \n" + colour.END)
         else:
-            for item in results:
+            for item in rawResults:
                 resultsList.append(item[1])
-        db.close()
     except:
-        print(colour.RED + "Invalid query, please try again." + colour.END)
+        print(colour.RED + "Invalid query." + colour.END)
+        while True:
+            print("Try again? (y/n)")
+            choice = input(": ")
+            if choice == "y" or choice == "Y":
+                search_username()
+            else:
+                break
 
 def custom_query(): # main code 3
     global dangerous
@@ -151,31 +156,50 @@ def custom_query(): # main code 3
 
 def rank_by_total_score(): # main code 4
     sql = "select rank, real_name, username, sum(question_score) from Question_score, User where user.id = Question_score.user_id group by user.id order by rank asc;"
-    results = run_sql(sql)
+    rawResults = run_sql(sql)
     print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                            " + "Score" + colour.END)
-    for item in results:
+    for item in rawResults:
         print(f"{item[0]:<5}{item[1]:<40}{item[2]:<36}{item[3]:<5}")
 
 def rank_by_question_score(): # main code 5
     try:
         questionID = int(input("Please enter the a question number (1, 2, 3, 4, or 5): "))
     except:
-        print(colour.RED + "Invalid question number, please try again." + colour.END)
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
+        print(colour.RED + "Invalid question number." + colour.END)
+        while True:
+            print("Try again? (y/n)")
+            choice = input(": ")
+            if choice == "y" or choice == "Y":
+                rank_by_question_score()
+            else:
+                break
+        if questionID not in [1, 2, 3, 4, 5]:
+            print(colour.RED + "Invalid question number." + colour.END)
+            while True:
+                print("Try again? (y/n)")
+                choice = input(": ")
+                if choice == "y" or choice == "Y":
+                    rank_by_question_score()
+                else:
+                    break
     sql = "select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = ?) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;"
     try:
-        cursor.execute(sql, (questionID,))
-        results = cursor.fetchall()
-        print("The question is " + results[0][2] + " and the maximum points is " + str(results[0][4]) + ".")
+        rawResults = run_sql(sql, questionID)
+        print("The question is " + rawResults[0][2] + " and the maximum points is " + str(rawResults[0][4]) + ".")
         print(colour.BOLD + colour.UNDERLINE + "Question Rank" + " Name" + "                                    " + "Username                                " + "Score       "+ colour.END)
         i = 1
-        for item in results:
+        for item in rawResults:
             print(f"{i:<10}    {item[0]:<40}{item[1]:<40}{item[3]:<40}")
             i += 1
     except:
-        print(colour.RED + "Invalid question number, please try again.\n" + colour.END)
-    db.close()
+        print(colour.RED + "Invalid question number.\n" + colour.END)
+        while True:
+            print("Try again? (y/n)")
+            choice = input(": ")
+            if choice == "y" or choice == "Y":
+                rank_by_question_score()
+            else:
+                break
 
 def rank_inside_school(): # main code 6
     print(colour.BOLD + "\nThe following schools had students who participated in this round: " + colour.END)
@@ -238,23 +262,16 @@ def rank_inside_school(): # main code 6
     Newlands Intermediate""")
     school = str(input(colour.BOLD + "\nPlease enter the name of the school to see the internal ranking of its students: " + colour.END))
     school = school.strip()
-    try:
-        db = sqlite3.connect(DATABASE)
-        cursor = db.cursor()
-    except:
-        print(colour.RED + "Database connection error" + colour.END)
     sql = "select real_name, username, sum(question_score) from Question_score, User where (user.id = Question_score.user_id and user.school = ?) group by user.id order by rank asc;"
     try:
-        cursor.execute(sql, (school,))
-        results = cursor.fetchall()
-        if results[0] != []:
+        rawResults = run_sql(sql, school)
+        if rawResults[0] != []:
             print(colour.BOLD + "\nRanking for " + school + ":" + colour.END)
             print(colour.BOLD + colour.UNDERLINE + "Internal-Rank" + " Name" + "                                    " + "Username                                " + "Score       "+ colour.END)
             i = 1
-            for item in results:
+            for item in rawResults:
                 print(f"{i:<10}    {item[1]:<40}{item[0]:<40}{item[2]:<40}")
                 i += 1
-        db.close()
     except:
         print(colour.RED + "Invalid school name, please try again.\n" + colour.END)
         while True:
@@ -274,7 +291,7 @@ def are_you_sure(): # used to ask the user if they are sure they want to run a d
     else:
         return 2 # dangerous
 
-def run_sql(query, input=None):
+def run_sql(query, param=None):
     # this function assumes that the input will be the same each time
     # inputRepeat = how many times the ? appears in the query
     try:
@@ -287,20 +304,23 @@ def run_sql(query, input=None):
     except:
         print(colour.RED + "Database connection error" + colour.END)
     try:
-        if input != None and inputRepeat == 0:
-            cursor.execute(query, (input,))
-        elif input != None and inputRepeat != 0:
-            input = "'" + input + "'"
-            modifiedQuery = query.replace("?", input)
+        if param is not None and inputRepeat == 0:
+            cursor.execute(query, (param,))
+        elif param is not None and inputRepeat != 0: 
+            if isinstance(param, int):
+                modifiedQuery = query.replace("?", str(param))
+            else:
+                param = "'" + param + "'"
+                modifiedQuery = query.replace("?", param)
             cursor.execute(modifiedQuery)
         else:
             cursor.execute(query)
         results = cursor.fetchall()
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
-        return 1
     db.close()
     return results
+
 
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 

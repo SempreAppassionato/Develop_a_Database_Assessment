@@ -92,11 +92,8 @@ def individual_score(username=None): # JOINED main code 2
             userIdentification = str(input(colour.BOLD + "Please enter a username or real name to search for: " + colour.END))
             userIdentification = userIdentification.strip()
         userIdentification = str(userIdentification)
-        db = sqlite3.connect(DATABASE)
-        cursor = db.cursor()
         sql = "select User.real_name, User.username, User.school, SUM(question_score) from User, Question_score where User.id = Question_score.user_id and (User.real_name = '" + userIdentification + "' or User.username = '" + userIdentification + "')"
-        cursor.execute(sql)
-        rawResults = cursor.fetchall()
+        rawResults = run_sql(sql)
         if rawResults != [(None, None, None)]:
             results = rawResults[0]
             print(colour.BOLD + "\nName: " + colour.END + results[1])
@@ -105,7 +102,6 @@ def individual_score(username=None): # JOINED main code 2
             print(colour.BOLD + "Total score: " + colour.END + str(results[3]) + "\n")
         else:
             print(colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
-        db.close()
     except:
         print(colour.RED + "Invalid query, please try again.\n" + colour.END)
 
@@ -278,7 +274,7 @@ def are_you_sure(): # used to ask the user if they are sure they want to run a d
     else:
         return 2 # dangerous
 
-def run_sql(query):
+def run_sql(query, input=None, inputRepeat = 0):
     try:
         db = sqlite3.connect(DATABASE)
         cursor = db.cursor()
@@ -286,7 +282,16 @@ def run_sql(query):
         print(colour.RED + "Database connection error" + colour.END)
         return 1
     try:
-        cursor.execute(query)
+        if input != None and inputRepeat == 0:
+            cursor.execute(query, (input,))
+        elif input != None and inputRepeat != 0:
+            query = "query, (input,"
+            for i in inputRepeat:
+                query = query + ", input,"
+            query = query + ")"
+            cursor.execute(query)
+        else:
+            cursor.execute(query)
         results = cursor.fetchall()
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
@@ -294,10 +299,7 @@ def run_sql(query):
     db.close()
     return results
 
-# other functions
 
-
-rank_inside_school()
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 
     try:
@@ -324,6 +326,7 @@ while True: # Main menu
     print("3 - Enter a custom SQL query (root access required)")
     print("4 - View the overall ranking by total score")
     print("5 - View the ranking by score on a specific question")
+    print("6 - View the internal ranking of a chosen school")
     print(colour.PURPLE + "\nPress press " + colour.BOLD + "q" + colour.END + colour.PURPLE + " to exit" + colour.END)
     print("----------------------------------------------\n")
     choice = input(": ")
@@ -341,6 +344,8 @@ while True: # Main menu
         rank_by_total_score()
     elif choice == "5":
         rank_by_question_score()
+    elif choice == "6":
+        rank_inside_school()
     elif choice == "q" or choice == "Q" or choice == "q " or choice == "Q ":
         print(colour.GREEN + "\n\nHow was your experience of this application? Your feedback will be sincerely appreciated. \nContact: 22343@burnside.school.nz\n\n\n\n")
         break

@@ -3,7 +3,6 @@
 
 """ 
 Development next steps: 
-- make a try again function
 - add comments 
 """
 
@@ -69,14 +68,8 @@ def root_user_authentication(): # added to main code
     if username == "root" and password == "raspberrypi":
         return True
     else:
-        print(colour.RED + "Invalid username or password. Please try again.\n" + colour.END)
-        while True:
-            print("Try again? (y/n)")
-            choice = input(": ")
-            if choice == "y" or choice == "Y":
-                root_user_authentication()
-            else:
-                break
+        print(colour.RED + "Invalid username or password.\n" + colour.END)
+        try_again(0)
 
 # Query functions
 def print_all_contestants(): # Main code 1
@@ -103,9 +96,11 @@ def individual_score(username=None): # JOINED main code 2
             print(colour.BOLD + "School: " + colour.END + results[2])
             print(colour.BOLD + "Total score: " + colour.END + str(results[3]) + "\n")
         else:
-            print(colour.DARKCYAN + "Your query did not return any results. Please try again." + colour.END)
+            print(colour.DARKCYAN + "Your query did not return any results." + colour.END)
+            try_again(2)
     except:
-        print(colour.RED + "Invalid query, please try again.\n" + colour.END)
+        print(colour.RED + "Invalid query.\n" + colour.END)
+        try_again(2)
 
 def search_username(): # JOINED main code 2
     global resultsList
@@ -121,13 +116,7 @@ def search_username(): # JOINED main code 2
                 resultsList.append(item[1])
     except:
         print(colour.RED + "Invalid query." + colour.END)
-        while True:
-            print("Try again? (y/n)")
-            choice = input(": ")
-            if choice == "y" or choice == "Y":
-                search_username()
-            else:
-                break
+        try_again(2)
 
 def custom_query(): # main code 3
     global dangerous
@@ -166,22 +155,10 @@ def rank_by_question_score(): # main code 5
         questionID = int(input("Please enter the a question number (1, 2, 3, 4, or 5): "))
     except:
         print(colour.RED + "Invalid question number." + colour.END)
-        while True:
-            print("Try again? (y/n)")
-            choice = input(": ")
-            if choice == "y" or choice == "Y":
-                rank_by_question_score()
-            else:
-                break
+        try_again(5)
         if questionID not in [1, 2, 3, 4, 5]:
             print(colour.RED + "Invalid question number." + colour.END)
-            while True:
-                print("Try again? (y/n)")
-                choice = input(": ")
-                if choice == "y" or choice == "Y":
-                    rank_by_question_score()
-                else:
-                    break
+            try_again(5)
     sql = "select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = ?) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;"
     try:
         rawResults = run_sql(sql, questionID)
@@ -193,13 +170,7 @@ def rank_by_question_score(): # main code 5
             i += 1
     except:
         print(colour.RED + "Invalid question number.\n" + colour.END)
-        while True:
-            print("Try again? (y/n)")
-            choice = input(": ")
-            if choice == "y" or choice == "Y":
-                rank_by_question_score()
-            else:
-                break
+        try_again(5)
 
 def rank_inside_school(): # main code 6
     print(colour.BOLD + "\nThe following schools had students who participated in this round: " + colour.END)
@@ -274,13 +245,7 @@ def rank_inside_school(): # main code 6
                 i += 1
     except:
         print(colour.RED + "Invalid school name, please try again.\n" + colour.END)
-        while True:
-            print("Try again? (y/n)")
-            choice = input(": ")
-            if choice == "y" or choice == "Y":
-                rank_inside_school()
-            else:
-                break
+        try_again(6)
 
 # other functions
 def are_you_sure(): # used to ask the user if they are sure they want to run a dangerous query
@@ -321,7 +286,30 @@ def run_sql(query, param=None):
     db.close()
     return results
 
-
+def try_again(functionNumber):
+    while True:
+            print(colour.DARKCYAN + "Try again? (y/n)" + colour.END)
+            choice = input(": ")
+            if choice == "y" or choice == "Y":
+                if functionNumber == 1:
+                    print_all_contestants()
+                elif functionNumber == 2:
+                    search_username()
+                    for user in resultsList:
+                        individual_score(user)
+                    resultsList = []
+                elif functionNumber == 3:
+                    custom_query()
+                elif functionNumber == 4:
+                    rank_by_total_score()
+                elif functionNumber == 5:
+                    rank_by_question_score()
+                elif functionNumber == 6:
+                    rank_inside_school()
+                elif functionNumber == 0:
+                    root_user_authentication()
+            else:
+                break
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 
     try:

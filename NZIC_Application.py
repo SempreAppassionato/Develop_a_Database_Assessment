@@ -75,8 +75,8 @@ def root_user_authentication(): # added to main code
         print("Passed.")
         return True
     try:
-        username = str(input("username: "))
-        password = str(input("password: "))
+        username = str(input(colour.BOLD + "username: " + colour.END))
+        password = str(input(colour.BOLD + "password: " + colour.END))
     except:
         pass
     if username == "root" and password == "raspberrypi":
@@ -98,7 +98,7 @@ def individual_score(username=None): # JOINED main code 2
         if username != None:
             userIdentification = username
         else: 
-            userIdentification = str(input(colour.BOLD + "Please enter a username or real name to search for: " + colour.END))
+            userIdentification = str(input(colour.BOLD + "\nPlease enter a username or real name to search for: " + colour.END))
             userIdentification = userIdentification.strip()
         userIdentification = str(userIdentification)
         sql = "select User.real_name, User.username, User.school, SUM(question_score) from User, Question_score where User.id = Question_score.user_id and (User.real_name = ? or User.username = ?)"
@@ -358,7 +358,7 @@ while True: # Initial authentication
 print(colour.BOLD + "Welcome!" + colour.END)
 while True: # Main menu
     time.sleep(0.7)
-    print("\n\n----------------------------------------------")
+    print("\n----------------------------------------------")
     print("1 - View all contestants")
     print("2 - Search for a username or real name to see user details")
     print("3 - Enter a custom SQL query (root access required)")

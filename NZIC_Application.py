@@ -141,7 +141,7 @@ def custom_query(): # main code 3
         userquery = str(input(": "))
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
-    dangerousKeywords = ["drop", "delete"]
+    dangerousKeywords = ["drop", "delete", "1=1"]
     if any(keyword in userquery.lower() for keyword in dangerousKeywords):
         print(colour.RED + "Invalid query, please do not try again." + colour.END)
         dangerous = True

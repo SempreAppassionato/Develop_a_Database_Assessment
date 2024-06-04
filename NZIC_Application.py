@@ -78,12 +78,15 @@ def root_user_authentication(): # added to main code
         username = str(input(colour.BOLD + "username: " + colour.END))
         password = str(input(colour.BOLD + "password: " + colour.END))
     except:
-        pass
+        print(colour.RED + "Invalid username or password, please try again." + colour.END)
+        try_again(0)
+        return False
     if username == "root" and password == "raspberrypi":
         return True
     else:
         print(colour.RED + "Invalid username or password.\n" + colour.END)
         try_again(0)
+        return False
 
 # Query functions
 def print_all_contestants(): # Main code 1
@@ -112,9 +115,11 @@ def individual_score(username=None): # JOINED main code 2
         else:
             print(colour.DARKCYAN + "Your query did not return any results." + colour.END)
             try_again(2)
+            return
     except:
         print(colour.RED + "Invalid query.\n" + colour.END)
         try_again(2)
+        return
 
 def search_username(): # JOINED main code 2
     global resultsList
@@ -125,15 +130,19 @@ def search_username(): # JOINED main code 2
         rawResults = run_sql(sql, search)
         if rawResults == []:
             print(colour.END + colour.DARKCYAN + "Your query did not return any results. Please try again. \n" + colour.END)
+            try_again(2)
+            return
         else:
             for item in rawResults:
                 resultsList.append(item[1])
     except:
         print(colour.RED + "Invalid query." + colour.END)
         try_again(2)
+        return
 
 def custom_query(): # main code 3
     global dangerous
+    dangerousKeywords = ["drop", "delete", "1=1"]
     dangerous = False
     show_ERD()
     print(colour.BOLD + "Please enter your SQL query below" + colour.END)
@@ -141,7 +150,8 @@ def custom_query(): # main code 3
         userquery = str(input(": "))
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
-    dangerousKeywords = ["drop", "delete", "1=1"]
+        try_again(3)
+        return
     if any(keyword in userquery.lower() for keyword in dangerousKeywords):
         print(colour.RED + "Invalid query, please do not try again." + colour.END)
         dangerous = True
@@ -171,11 +181,13 @@ def rank_by_question_score(): # main code 5
     try:
         questionID = int(input("Please enter the a question number (1, 2, 3, 4, or 5): "))
     except:
-        print(colour.RED + "Invalid question number..." + colour.END)
+        print(colour.RED + "Invalid question number." + colour.END)
         try_again(5)
+        return
     if questionID not in [1, 2, 3, 4, 5]:
         print(colour.RED + "Invalid question number." + colour.END)
         try_again(5)
+        return
     sql = "select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = ?) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;"
     try:
         rawResults = run_sql(sql, questionID)
@@ -188,6 +200,7 @@ def rank_by_question_score(): # main code 5
     except:
         print(colour.RED + "Invalid question number.\n" + colour.END)
         try_again(5)
+        return
 
 def rank_inside_school(): # main code 6
     print(colour.BOLD + "\nThe following schools had students who participated in this round: " + colour.END)
@@ -263,6 +276,7 @@ def rank_inside_school(): # main code 6
     except:
         print(colour.RED + "Invalid school name, please try again.\n" + colour.END)
         try_again(6)
+        return
 
 # other functions
 def are_you_sure(): # used to ask the user if they are sure they want to run a dangerous query
@@ -280,11 +294,14 @@ def run_sql(query, param=None):
         inputRepeat = query.count("?")
     except:
         print(colour.RED + "Query error." + colour.END)
+        return 1
     try:
         db = sqlite3.connect(DATABASE)
         cursor = db.cursor()
     except:
         print(colour.RED + "Database connection error" + colour.END)
+        db.close()
+        return 1
     try:
         if param is not None and inputRepeat == 0:
             cursor.execute(query, (param,))
@@ -300,6 +317,8 @@ def run_sql(query, param=None):
         results = cursor.fetchall()
     except:
         print(colour.RED + "Invalid query, please try again." + colour.END)
+        db.close()
+        return 1
     db.close()
     return results
 
@@ -385,5 +404,5 @@ while True: # Main menu
     elif choice == "6":
         rank_inside_school()
     elif choice == "q" or choice == "Q" or choice == "q " or choice == "Q ":
-        print(colour.GREEN + "\n\nHow was your experience of this application? Your feedback will be sincerely appreciated. \nContact: 22343@burnside.school.nz\n\n\n\n")
+        print(colour.DARKCYAN + "\n\nHow was your experience of this application? Your feedback will be sincerely appreciated. \nContact: 22343@burnside.school.nz\n\n\n\n")
         break

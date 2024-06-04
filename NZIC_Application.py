@@ -1,13 +1,22 @@
-# First Name Last name (This is a synced to a public repository)
-# This application helps users better understand the results from Round 1 of NCIC 2024
-
 """ 
+The purpose of this application is to allow users to view specific information from the results of the New Zealand Informatics Competition (NZIC). The data I will use is from Round 1 of NZIC in 2024. 
+The data is stored in a SQLite database. The application will allow users to view the following information:
+    - all contestants and their details
+    - the details of a specific user
+    - the overall ranking by total score
+    - the ranking by score on a specific question
+    - the internal ranking of a chosen school
+    - more information for experienced users through custom SQL queries (root access required)
+
+This application is for young people seeking to understand more about the results of the competition or interested in taking part in it. 
+It can also help schools understand the performance of their students in the competition.
+
+
 Development next steps: 
 - add comments 
 - testing
-"""
 
-"""
+
 ERD for the database: 
  _____________________________           ______________________________           _____________________________ 
 |            User             |         |         Question_score       |         |          Question           |

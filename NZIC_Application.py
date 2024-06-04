@@ -4,6 +4,19 @@
 """ 
 Development next steps: 
 - add comments 
+- testing
+"""
+
+"""
+ERD for the database: 
+ _____________________________           ______________________________           _____________________________ 
+|            User             |         |         Question_score       |         |          Question           |
+| PK |     id      |  INTEGER |-|------<| FK |   user_id    |  INTEGER |   .---|-| PK |     id      |  INTEGER |
+|    |  username   |   TEXT   |         | FK |  question_id |  INTEGER |>--'     |    |    name     |   TEXT   |
+|    |  real_name  |   TEXT   |         |    |question_score|  INTEGER |         |    |  max_points |  INTEGER |
+|    |   school    |   TEXT   |          ''''''''''''''''''''''''''''''           '''''''''''''''''''''''''''''
+|    |    rank     |  INTEGER |
+''''''''''''''''''''''''''''''
 """
 
 import sqlite3
@@ -26,6 +39,7 @@ global resultsList
 global username
 global password
 global dangerous
+global questionID
 global customUsername
 global customPassword
 resultsList = []
@@ -121,6 +135,7 @@ def search_username(): # JOINED main code 2
 def custom_query(): # main code 3
     global dangerous
     dangerous = False
+    show_ERD()
     print(colour.BOLD + "Please enter your SQL query below" + colour.END)
     try:
         userquery = str(input(": "))
@@ -151,14 +166,16 @@ def rank_by_total_score(): # main code 4
         print(f"{item[0]:<5}{item[1]:<40}{item[2]:<36}{item[3]:<5}")
 
 def rank_by_question_score(): # main code 5
+    global questionID
+    questionID = None
     try:
         questionID = int(input("Please enter the a question number (1, 2, 3, 4, or 5): "))
     except:
+        print(colour.RED + "Invalid question number..." + colour.END)
+        try_again(5)
+    if questionID not in [1, 2, 3, 4, 5]:
         print(colour.RED + "Invalid question number." + colour.END)
         try_again(5)
-        if questionID not in [1, 2, 3, 4, 5]:
-            print(colour.RED + "Invalid question number." + colour.END)
-            try_again(5)
     sql = "select username, real_name, name, question_score, max_points from User, Question_score, Question where (Question.id = ?) and (Question.id = Question_score.question_id and user.id = Question_score.user_id) order by question_score desc;"
     try:
         rawResults = run_sql(sql, questionID)
@@ -310,6 +327,17 @@ def try_again(functionNumber):
                     root_user_authentication()
             else:
                 break
+
+def show_ERD():
+    print("\n ERD for the database: ")
+    print(" _____________________________           ______________________________           _____________________________")
+    print(colour.UNDERLINE + "|            User             |" + colour.END + "         " + colour.UNDERLINE + "|         Question_score       |" + colour.END + "         " + colour.UNDERLINE + "|          Question           |" + colour.END)
+    print("| PK |     id      |  INTEGER |-|------<| FK |   user_id    |  INTEGER |   .---|-| PK |     id      |  INTEGER |")
+    print("|    |  username   |   TEXT   |         | FK |  question_id |  INTEGER |>--'     |    |    name     |   TEXT   |")
+    print("|    |  real_name  |   TEXT   |         " + colour.UNDERLINE + "|    |question_score|  INTEGER |" + colour.END + "         " + colour.UNDERLINE + "|    |  max_points |  INTEGER |" + colour.END)
+    print("|    |   school    |   TEXT   |")
+    print(colour.UNDERLINE + "|    |    rank     |  INTEGER |\n" + colour.END)
+
 # MAIN CODE __________________________________________________________________
 while True: # Initial authentication 
     try:

@@ -28,10 +28,10 @@ ERD for the database:
 ''''''''''''''''''''''''''''''
 """
 
-import sqlite3
-import time
+import sqlite3 # to access the databse
+import time # to add time delay 
 
-class colour:
+class colour: # defining class colour to easily change colours in print statements later
    PURPLE = '\033[95m'
    CYAN = '\033[96m'
    DARKCYAN = '\033[36m'
@@ -44,106 +44,124 @@ class colour:
    END = '\033[0m'
 
 # CONSTANTS AND VARIABLES ________________________________________________
-global resultsList
-global username
-global password
-global dangerous
-global questionID
-global customUsername
-global customPassword
-resultsList = []
-DATABASE = "NZIC.db"
+username = None # username for authentication
+password = None # password for authentication
 
+dangerous = False # boolean value that becomes True when a dangerous keyword is detected in custom_query
+questionID = None # used for rank_by_question_score function
+resultsList = [] # list that stores the details of each user found when using the search_username function
+DATABASE = "NZIC.db" #constant 
+
+dangerousKeywords = ["drop", "delete", "1=1"] # dangerous keywords that will be blocked by custom_query
+concerningKeywords = ["update", "insert", "create", "replace"] # concerning keywords that will be questioned by custom_query by still run if they are sure
+
+# custom username and password to be modified when neccessary 
 customUsername = "22343"
 customPassword = "library"
 
-# FUNCTIONS  ___________________________________________________________
 
+# FUNCTIONS  ___________________________________________________________
 # Authentication functions
-def authenticate_user(username, password): # added to main code
+def authenticate_user(username, password): # used in the initial authentication loop
+    # Function inputs: username, password 
+    # Function returns: 
+    # 1: normal access 
+    # 2: root access
+    # -1: failed authentiation
     global customUsername
+    global customPassword
     if username == "admin" and password == "password":
-        return 1
+        return 1 # normal access 
     elif username == "root" and password == "raspberrypi":
-        return 2
+        return 2 # root access 
     elif username == customUsername and password == customPassword:
-        return 1
+        return 1 # also normal access 
     else:
         print(colour.RED + "Invalid username or password. Please try again.\n" + colour.END)
-        return -1
+        return -1 # failed authentication 
 
-def root_user_authentication(): # added to main code
+def root_user_authentication(): # used when a user tries to access the custom_query function
+    # Function inputs: none, but reads from global username, password 
+    # Function returns: True/False indicating whether root authentication has succeded 
     global username
     global password
     print(colour.RED + "Checking user priveleges..." + colour.END)
-    if username == "admin" and password == "password":
+    if username == "admin" and password == "password": # admin is not root
         print(colour.DARKCYAN + "This user is not in the sudoers file.\nThis incident has been reported to the administrator." + colour.END)
         time.sleep(1)
         print("\nNo, just a little Linux joke. Please login as the root user below (;")
-    if username == "root" and password == "raspberrypi":
+    if username == "root" and password == "raspberrypi": 
         print("Passed.")
-        return True
-    try:
+        return True # root user authenticated 
+    try: 
+        # at this point in the code, if it has not returned True, then this means 
+        # the current user is not root and input is needed 
         username = str(input(colour.BOLD + "username: " + colour.END))
         password = str(input(colour.BOLD + "password: " + colour.END))
-    except:
+    except: # catching errors 
         print(colour.RED + "Invalid username or password, please try again." + colour.END)
         try_again(0)
-        return False
-    if username == "root" and password == "raspberrypi":
-        return True
-    else:
+        return False # not root 
+    if username == "root" and password == "raspberrypi": # this time, if the input is correct 
+        return True # yes root 
+    else: # try again
         print(colour.RED + "Invalid username or password.\n" + colour.END)
-        try_again(0)
-        return False
+        try_again(0) # if the user does not want to try again, then the try_again function will exit
+        return False # and return false so in the main code it does not continue to custom_query
 
 # Query functions
-def print_all_contestants(): # Main code 1
+def print_all_contestants(): # Menu No. 1
+    # Function inputs: none 
+    # Function purpose: prints all contestants 
+    # Function prints: a table containing the name, username, and schools of every contestant 
     sql = "select real_name, username, school from User"
-    results = run_sql(sql)
+    results = run_sql(sql) #using the run_sql function see later 
     print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                    " + "Username                                " + "School                                         " + colour.END)
     for item in results:
         print(f"{item[1]:<40}{item[0]:<40}{item[2]:<40}\n")
 
-def individual_score(username=None): # JOINED main code 2
+def individual_score(listOfUsernames=None): # Menu No. 2 (joined)
+    # Part of Menu No. 2. Called after search_username is run 
+    # Function inputs: resultsList from search_username 
+    # Function prints: the username, school, and total score of all the contestants that came up in the search 
     try:
-        if username != None:
-            userIdentification = username
-        else: 
+        if listOfUsernames != None: # this happens every time in the current use case for this function
+            userIdentification = listOfUsernames
+        else: # this else statement is redunant here 
             userIdentification = str(input(colour.BOLD + "\nPlease enter a username or real name to search for: " + colour.END))
             userIdentification = userIdentification.strip()
-        userIdentification = str(userIdentification)
+        userIdentification = str(userIdentification) # make sure it's string 
         sql = "select User.real_name, User.username, User.school, SUM(question_score) from User, Question_score where User.id = Question_score.user_id and (User.real_name = ? or User.username = ?)"
-        rawResults = run_sql(sql, userIdentification)
-        if rawResults != [(None, None, None)]:
-            results = rawResults[0]
+        rawResults = run_sql(sql, userIdentification) # getting raw results 
+        if rawResults != [(None, None, None)]: 
+            results = rawResults[0] # printing results 
             print(colour.BOLD + "\nName: " + colour.END + results[1])
             print(colour.BOLD + "Username: " + colour.END + results[0])
             print(colour.BOLD + "School: " + colour.END + results[2])
             print(colour.BOLD + "Total score: " + colour.END + str(results[3]) + "\n")
         else:
             print(colour.DARKCYAN + "Your query did not return any results." + colour.END)
-            try_again(2)
-            return
+            try_again(2) # prompting to try again
+            return # if try again exits with no, then the function ends by returning to the main code
     except:
         print(colour.RED + "Invalid query.\n" + colour.END)
         try_again(2)
-        return
+        return # if try again exits with no, then the function ends by returning to the main code
 
 def search_username(): # JOINED main code 2
-    global resultsList
-    try:
+    global resultsList # used to store the results of the search 
+    try: # protecting against rogue inputs
         search = str(input(colour.BOLD + "Please enter a username or real name to search for: " + colour.END))
         search = '%' + search + '%'
         sql = "select real_name, username from User where real_name like ? or username like ?"
-        rawResults = run_sql(sql, search)
-        if rawResults == []:
+        rawResults = run_sql(sql, search) # getting raw results
+        if rawResults == []: # if raw results are empty
             print(colour.END + colour.DARKCYAN + "Your query did not return any results. Please try again. \n" + colour.END)
             try_again(2)
             return
         else:
             for item in rawResults:
-                resultsList.append(item[1])
+                resultsList.append(item[1]) # add to results list to be input into individual_score
     except:
         print(colour.RED + "Invalid query." + colour.END)
         try_again(2)
@@ -151,7 +169,8 @@ def search_username(): # JOINED main code 2
 
 def custom_query(): # main code 3
     global dangerous
-    dangerousKeywords = ["drop", "delete", "1=1"]
+    global dangerousKeywords
+    global concerningKeywords
     dangerous = False
     show_ERD()
     print(colour.BOLD + "Please enter your SQL query below" + colour.END)
@@ -164,7 +183,7 @@ def custom_query(): # main code 3
     if any(keyword in userquery.lower() for keyword in dangerousKeywords):
         print(colour.RED + "Invalid query, please do not try again." + colour.END)
         dangerous = True
-    concerningKeywords = ["update", "insert", "create", "replace"]
+    
     if any(keyword in userquery.lower() for keyword in concerningKeywords):
         choice = are_you_sure()
         if choice == 2:
@@ -297,6 +316,7 @@ def are_you_sure(): # used to ask the user if they are sure they want to run a d
         return 2 # dangerous
 
 def run_sql(query, param=None):
+    global DATABASE
     # this function assumes that the input will be the same each time
     # inputRepeat = how many times the ? appears in the query
     try:

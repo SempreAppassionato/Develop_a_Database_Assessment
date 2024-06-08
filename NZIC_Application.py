@@ -25,7 +25,7 @@ ERD for the database:
 
 import sqlite3 # to access the databse
 import time # to add time delay 
-import shutil
+import shutil # to get the terminal window size
 
 # CONSTANTS AND VARIABLES ________________________________________________
 username = None # username for authentication
@@ -83,7 +83,7 @@ def root_user_authentication(): # used when a user tries to access the custom_qu
     print(colour.RED + "Checking user priveleges..." + colour.END)
     if username == "admin" and password == "password": # admin is not root
         print(colour.DARKCYAN + "This user is not in the sudoers file.\nThis incident has been reported to the administrator." + colour.END)
-        time.sleep(1)
+        time.sleep(2.5) # haha
         print("\nNo, just a little Linux joke. Please login as the root user below (;")
     if username == "root" and password == "raspberrypi": 
         print("Passed.")

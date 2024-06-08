@@ -20,11 +20,12 @@ ERD for the database:
 |    |   school    |   TEXT   |          ''''''''''''''''''''''''''''''           '''''''''''''''''''''''''''''
 |    |    rank     |  INTEGER |
 ''''''''''''''''''''''''''''''
-                                    MAIN CODE STARTS AT LINE 432
+                                    MAIN CODE STARTS AT LINE 451
 """
 
 import sqlite3 # to access the databse
 import time # to add time delay 
+import shutil
 
 # CONSTANTS AND VARIABLES ________________________________________________
 username = None # username for authentication
@@ -113,6 +114,7 @@ def print_all_contestants(): # Menu No. 1
     print(colour.BOLD + colour.UNDERLINE + "\n\nName" + "                                    " + "Username                                " + "School                                         " + colour.END)
     for item in results:
         print(f"{item[1]:<40}{item[0]:<40}{item[2]:<40}\n")
+    check_window_width()
 
 def individual_score(listOfUsernames=None): # Menu No. 2 (joined)
     # Part of Menu No. 2. Called after search_username is run 
@@ -137,6 +139,7 @@ def individual_score(listOfUsernames=None): # Menu No. 2 (joined)
             print(colour.DARKCYAN + "Your query did not return any results." + colour.END)
             try_again(2) # prompting to try again
             return # if try again exits with no, then the function ends by returning to the main code
+        check_window_width()
     except:
         print(colour.RED + "Invalid query.\n" + colour.END)
         try_again(2) # prompting to try again
@@ -198,6 +201,7 @@ def custom_query(): # Menu No. 3
         if results != 1: # if the results are not an empty
             for item in results: # print out the raw results 
                 print(item)
+            check_window_width()
 
 def rank_by_total_score(): # Menu No. 4
     # Function inputs: none
@@ -208,6 +212,7 @@ def rank_by_total_score(): # Menu No. 4
     print(colour.BOLD + colour.UNDERLINE + "Rank" + " Name" + "                                    " + "Username                            " + "Score" + colour.END)
     for item in rawResults: # printing it out in a table
         print(f"{item[0]:<5}{item[1]:<40}{item[2]:<36}{item[3]:<5}")
+    check_window_width()
 
 def rank_by_question_score(): # Menu No. 5
     # Function inputs: none
@@ -236,6 +241,7 @@ def rank_by_question_score(): # Menu No. 5
         for item in rawResults:
             print(f"{i:<10}    {item[0]:<40}{item[1]:<40}{item[3]:<40}")
             i += 1
+        check_window_width()
     except: # catching errors 
         print(colour.RED + "Invalid question number.\n" + colour.END)
         try_again(5)
@@ -317,6 +323,7 @@ def rank_inside_school(): # Menu No. 6
             for item in rawResults:
                 print(f"{i:<10}    {item[1]:<40}{item[0]:<40}{item[2]:<40}")
                 i += 1 # incrementing the rank
+            check_window_width()
     except:
         print(colour.RED + "Invalid school name, please try again.\n" + colour.END)
         try_again(6) # if any error, try again
@@ -409,7 +416,8 @@ def try_again(functionNumber):
                     rank_inside_school()
                     break
                 elif functionNumber == 0:
-                    root_user_authentication()
+                    if root_user_authentication(): # root authentication required 
+                        custom_query()
                     break
             else: # anything other than yes 
                 break # break the loop
@@ -428,7 +436,19 @@ def show_ERD():
     print("|    |   school    |   TEXT   |")
     print(colour.UNDERLINE + "|    |    rank     |  INTEGER |\n" + colour.END)
 
+def check_window_width():
+    # Function inputs: none
+    # Function purpose: to check the width of the terminal window and print a warning if it is too small
+    # Function returns: none
+    # Function prints: a warning if the terminal window is too small
+    width = shutil.get_terminal_size()[0] # getting the terminal size
+    # shutil.get_terminal_size() returns a tuple with the height and width of the terminal window
+    if width < 120: # if it isn't wide enough 
+        print(colour.RED + "Your window size may be too small for the content displayed.") # print warning
+        print("Please resize your window." + colour.END)
+
 # MAIN CODE __________________________________________________________________
+check_window_width() # checking the window width
 while True: # Initial authentication loop
     try: # protecting against rogue inputs
         username = str(input("username: ")) # both have to be string
@@ -458,6 +478,7 @@ while True: # Main menu (also a loop)
     print("5 - View the ranking by score on a specific question")
     print("6 - View the internal ranking of a chosen school")
     print(colour.PURPLE + "\nPress press " + colour.BOLD + "q" + colour.END + colour.PURPLE + " to exit" + colour.END)
+    check_window_width()
     print("----------------------------------------------\n")
     choice = input(": ") # taking the user's choices
     if choice == "1": # if the user wants to view all contestants

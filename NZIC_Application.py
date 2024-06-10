@@ -92,8 +92,8 @@ def root_user_authentication(): # used when a user tries to access the custom_qu
     try: 
         # at this point in the code, if it has not returned True, then this means 
         # the current user is not root and input is needed 
-        username = getpass.getpass("username: ") 
-        password = getpass.getpass("password: ")
+        username = getpass.getpass("username: ") # using getpass to get the username
+        password = getpass.getpass("password: ") # using getpass to get the password
     except: # catching errors 
         print(colour.RED + "Invalid username or password, please try again." + colour.END)
         try_again(0)

@@ -26,6 +26,7 @@ ERD for the database:
 import sqlite3 # to access the databse
 import time # to add time delay 
 import shutil # to get the terminal window size
+import getpass # to not display the password or username when entering
 
 # CONSTANTS AND VARIABLES ________________________________________________
 username = None # username for authentication
@@ -83,7 +84,7 @@ def root_user_authentication(): # used when a user tries to access the custom_qu
     print(colour.RED + "Checking user priveleges..." + colour.END)
     if username == "admin" and password == "password": # admin is not root
         print(colour.DARKCYAN + "This user is not in the sudoers file.\nThis incident has been reported to the administrator." + colour.END)
-        time.sleep(2.5) # haha
+        time.sleep(2) # haha
         print("\nNo, just a little Linux joke. Please login as the root user below (;")
     if username == "root" and password == "raspberrypi": 
         print("Passed.")
@@ -91,8 +92,8 @@ def root_user_authentication(): # used when a user tries to access the custom_qu
     try: 
         # at this point in the code, if it has not returned True, then this means 
         # the current user is not root and input is needed 
-        username = str(input(colour.BOLD + "username: " + colour.END))
-        password = str(input(colour.BOLD + "password: " + colour.END))
+        username = getpass.getpass("username: ") 
+        password = getpass.getpass("password: ")
     except: # catching errors 
         print(colour.RED + "Invalid username or password, please try again." + colour.END)
         try_again(0)
@@ -451,8 +452,8 @@ def check_window_width():
 check_window_width() # checking the window width
 while True: # Initial authentication loop
     try: # protecting against rogue inputs
-        username = str(input("username: ")) # both have to be string
-        password = str(input("password: "))
+        username = getpass.getpass("username: ") # using getpass
+        password = getpass.getpass("password: ")
     except: # catching errors
         # the error could be when forcing str type
         print(colour.RED + "Error\n" + colour.END)
